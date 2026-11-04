@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>저혈압·고혈압 — MAP와 쇼크 3분류</title>
+<meta name="description" content="MAP 65·소변량 0.5 cc/kg/hr 목표, 쇼크 3분류 감별, norpin·vasopressin 용량, 고혈압 위기와 PSVT·AF 처치.">
+<meta property="og:title" content="저혈압·고혈압 — MAP와 쇼크 3분류">
+<meta property="og:description" content="MAP 65·소변량 0.5 cc/kg/hr 목표, 쇼크 3분류 감별, norpin·vasopressin 용량, 고혈압 위기와 PSVT·AF 처치.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles/tokens.css">
+<link rel="stylesheet" href="styles/site.css">
+<link rel="stylesheet" href="styles/theme.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <a class="brand" href="index.html">Ward Nights · 당직</a>
+    <nav class="nav" aria-label="장 이동">
+      <a href="index.html">개요</a>
+      <a href="fever.html">발열</a>
+      <a href="breathing.html">호흡</a>
+      <a href="mental.html">의식</a>
+      <a href="circulation.html" aria-current="page">순환</a>
+      <a href="glucose.html">혈당</a>
+      <a href="gi.html">복통·출혈</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <div class="hero">
+      <p class="eyebrow">Chapter 04 · Circulation</p>
+      <h1>순환 — 숫자보다 관류를 본다</h1>
+      <p class="lede">sBP가 정상이어도 원래 고혈압이었으면 쇼크다. <strong>MAP 65 + 소변량</strong>이 실제 목표다.</p>
+      <div class="meta"><span>원노트: 내과병동 당직 어시스트 (2026-09-14)</span></div>
+    </div>
+
+
+    <section aria-labelledby="c1">
+      <h2 id="c1"><span class="num">01 — Low BP</span>쇼크인가</h2>
+      <p>Endpoint는 <strong>MAP ≥65 mmHg + urine output 0.5 cc/kg/hr</strong>. MAP = dBP + (맥압 ÷ 3).
+        갑자기 baseline보다 현저히 떨어지거나 sBP &lt;80이면 Foley를 넣고 대응을 시작한다.</p>
+      <ul>
+        <li>소변량: 시간당 최소 30 cc 또는 자기 체중의 절반. Foley 또는 nelaton으로 파악.</li>
+        <li>BP가 정상이어도 원래 고혈압이었으면 관류가 안 되고 있을 수 있다 — 의식(뇌), 소변량(신장), 말초 냉감·모세혈관 재충전(피부, 정상 2–4초).</li>
+        <li>N/S 500 cc loading 후에도 MAP가 낮거나 sBP ≤80이면 sepsis를 생각한다. Septic이 아니면 500 cc 추가, septic이면 ICU 상의(C-line, norpin).</li>
+      </ul>
+      <div class="tbl-wrap">
+        <table>
+          <caption>쇼크 3분류 감별</caption>
+          <thead><tr><th>유형</th><th>단서</th><th>원인</th></tr></thead>
+          <tbody>
+            <tr><td>Hypovolemic</td><td>경정맥 팽창 없음 + 말초 냉감, echo상 hypermobility</td><td>급성출혈(위장관), 대동맥류 파열, 자궁외임신 파열, 화상, 췌장염, 구토·설사, DKA/HHS</td></tr>
+            <tr><td>Cardiogenic</td><td>경정맥 팽창, 심장 주변 액체·수축 저하</td><td>MI, CMP, 판막질환 급성악화, 부정맥, 심낭압전, 긴장성 기흉, PTE</td></tr>
+            <tr><td>Distributive</td><td>volume은 정상인데 vessel이 확장, echo상 hyperdynamic</td><td>Sepsis, anaphylaxis, neurogenic, 부신부전</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>수백 mL의 fluid로 악화되지는 않는다 — cardiogenic이 감별에 있어도 원칙대로 500 cc flushing 후 echo를 의뢰한다.
+        부신부전은 septic shock에 준해 치료해도 차도가 없을 때 의심한다(GI 증상, 전해질 이상, 저혈당).</p>
+    </section>
+
+    <section aria-labelledby="c2">
+      <h2 id="c2"><span class="num">02 — Pressor</span>승압제 시작</h2>
+      <div class="tbl-wrap">
+        <table>
+          <caption>야간에 쓸 수 있는 승압제</caption>
+          <thead><tr><th>약</th><th>방법</th><th>주의</th></tr></thead>
+          <tbody>
+            <tr><td>Norepinephrine</td><td>GW line이면 20 mL로 희석한 norpin을 480 cc D5W에 mix, 10 cc/hr로 시작(“싱글 놀핀”). Pump가 있으면 체중×0.03 cc를 50 cc D5W에 mix.</td><td>예: 60 kg sepsis — 1.8 cc norpin + 50 cc D5W, 5 cc/hr = 0.05 mcg/kg/min.</td></tr>
+            <tr><td>Vasopressin</td><td>1 cc(20 unit) + 19 cc N/S = 1 unit/mL. 0.6 cc/hr 시작, 0.6 단위로 증량, 최대 2.4 cc/hr.</td><td>NE 보조. NE 중단 전 1시간에 0.01 unit씩 감량, 상급자 상의.</td></tr>
+            <tr><td>Epinephrine</td><td>Anaphylaxis 1:1000 half ampule / CPR 1:10000 희석 1 mg q4min</td><td>1 amp를 9 cc N/S에 mix해 IV.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Endpoint는 MAP &gt;65 회복까지 10분 간격 BP. 5 cc/hr 단위로 증량하되 고용량이 필요하면 혈관외 누출 시 괴사 위험이 있어 C-line을 위해 상급자·ICU·ER와 상의.</p>
+    </section>
+
+    <section aria-labelledby="c3">
+      <h2 id="c3"><span class="num">03 — High BP</span>고혈압과 부정맥</h2>
+      <ul>
+        <li>sBP &lt;180이거나 무증상이면 지켜볼 수 있다. 정상이었다가 갑자기 sBP ≥200이면 뇌출혈을 배제(N/Ex, Brain CT).</li>
+        <li>sBP ≥180이고 head-up에도 반응이 없으면 nicardipine 2 cc(0.2 amp) IV bolus.</li>
+        <li>PSVT: adenosine 6 mg + N/S 20 cc flush, 2회까지. 그래도 증상이 있으면 12 mg → 불안정하면 cardioversion.</li>
+        <li>AF with rapid ventricular response: rate control 먼저(β-blocker). 불안정하면 cardioversion 100–120 J(상급자 상의).</li>
+        <li>흉통: EKG를 찍어 과거와 비교, 누워서 serial 3장. 부정맥이 의심되면 rhythm strip을 길게.</li>
+      </ul>
+    </section>
+
+    <div class="pager">
+      <a href="mental.html">← 의식</a>
+      <a href="glucose.html">혈당 →</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <p>개인 학습·실무 정리. 야간 판단의 보조 자료이며, 최종 판단과 처방은 담당 의사가 한다.</p>
+    <p><a href="https://kimhs950627.github.io/">← 학습 페이지 허브</a> · <a href="https://kimhs950627.github.io/primary-care-protocol/">외래 프로토콜</a></p>
+  </div>
+</footer>
+</body>
+</html>

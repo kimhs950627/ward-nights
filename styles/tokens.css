@@ -1,0 +1,26 @@
+:root {
+  --paper: #f6f3ec;
+  --paper-2: #fffdf8;
+  --ink: #1a1714;
+  --ink-2: #4a443b;
+  --muted: #665e50;
+  --rule: #d9d1c0;
+  --accent: #0f5f63;
+  --accent-soft: #dcebea;
+  --warn: #9c3d1d;
+  --warn-soft: #f4e2d9;
+  --ok: #3d6b3a;
+  --font: "IBM Plex Sans KR", "Pretendard", "Apple SD Gothic Neo", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --serif: "Noto Serif KR", Georgia, serif;
+
+  --step-0: 1rem;
+  --step-1: 1.18rem;
+  --step-2: 1.45rem;
+  --step-3: 1.9rem;
+  --step-4: 2.6rem;
+
+  --gap: 1.5rem;
+  --pad: clamp(1.75rem, 5vw, 2.75rem);
+  --measure: 68ch;
+}

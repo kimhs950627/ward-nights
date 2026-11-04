@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>입원 혈당 — sliding·저혈당·DKA/HHS</title>
+<meta name="description" content="경구약 기전별 주의, sliding scale 표, basal-bolus 인슐린 계산, 저혈당 ABCDEF 처치, DKA/HHS 초기 프로토콜.">
+<meta property="og:title" content="입원 혈당 — sliding·저혈당·DKA/HHS">
+<meta property="og:description" content="경구약 기전별 주의, sliding scale 표, basal-bolus 인슐린 계산, 저혈당 ABCDEF 처치, DKA/HHS 초기 프로토콜.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles/tokens.css">
+<link rel="stylesheet" href="styles/site.css">
+<link rel="stylesheet" href="styles/theme.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <a class="brand" href="index.html">Ward Nights · 당직</a>
+    <nav class="nav" aria-label="장 이동">
+      <a href="index.html">개요</a>
+      <a href="fever.html">발열</a>
+      <a href="breathing.html">호흡</a>
+      <a href="mental.html">의식</a>
+      <a href="circulation.html">순환</a>
+      <a href="glucose.html" aria-current="page">혈당</a>
+      <a href="gi.html">복통·출혈</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <div class="hero">
+      <p class="eyebrow">Chapter 05 · Glucose</p>
+      <h1>혈당 — 급성기 목표는 140–180이다</h1>
+      <p class="lede">입원에서 strict control은 해가 된다. <strong>sliding으로 시작해 basal-bolus로 넘기고</strong>, 저혈당은 분 단위로, DKA는 순서대로.</p>
+      <div class="meta"><span>원노트: 혈당 관리 (2026-09-09)</span></div>
+    </div>
+
+
+    <section aria-labelledby="g1">
+      <h2 id="g1"><span class="num">01 — OHA</span>입원에서 경구약을 볼 때</h2>
+      <div class="tbl-wrap">
+        <table>
+          <caption>기전별 분류와 피해야 할 상황</caption>
+          <thead><tr><th>기전</th><th>약</th><th>주의</th></tr></thead>
+          <tbody>
+            <tr><td>인슐린 저항성 감소</td><td>Metformin, TZD</td><td>신장애·탈수·조영제에서 metformin 중단, TZD는 심부전·부종 주의</td></tr>
+            <tr><td>분비 촉진</td><td>SU, DPP4i, GLP-1RA</td><td>SU는 저혈당 위험 높음 — 고령·저혈당 위험이면 피한다</td></tr>
+            <tr><td>당 배설 촉진</td><td>SGLT2i, α-glucosidase inhibitor</td><td>탈수·UTI 병력·뇌경색 위험이면 피한다(신장애에서는 SGLT2i 우선이지만 급성질환에서는 중단)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>인슐린이 필요한 때: 공복 250 이상, random BST 350 이상의 심한 고혈당, 수술 전, 전신상태가 나쁠 때.
+        급성기 질환(감염, acute stroke)의 target BST는 <strong>140–180</strong> — 더 strict하게 조절하면 mortality와 중증 저혈당이 늘어난다.</p>
+    </section>
+
+    <section aria-labelledby="g2">
+      <h2 id="g2"><span class="num">02 — Sliding</span>Sliding scale</h2>
+      <p>기저 인슐린 없이 (초)속효성 인슐린을 정해진 혈당 구간에 맞춰 투여하는 방식. 고혈당이 생긴 뒤 사후 교정이고,
+        OHA나 basal-bolus를 바로 시작하기 어려운 경우(전신상태 불량, 신·간기능 저하)에 쓴다.
+        ADA는 sliding만으로 입원 케어하는 것을 권하지 않는다 — 수술 전후·검사 전후·식사량 불안정에서 short-term으로.</p>
+      <div class="tbl-wrap">
+        <table>
+          <caption>Sliding scale 예 (Humalog, 시작 후 반응 보고 조정)</caption>
+          <thead><tr><th>BST (mg/dL)</th><th>BMI &lt;25</th><th>BMI &gt;25</th></tr></thead>
+          <tbody>
+            <tr><td>71–180 / 71–140</td><td>없음</td><td>없음</td></tr>
+            <tr><td>181–230 / 140–180</td><td>2 unit</td><td>4 unit</td></tr>
+            <tr><td>231–280 / 181–230</td><td>4 unit</td><td>6 unit</td></tr>
+            <tr><td>281–499</td><td>6 unit</td><td>8 unit</td></tr>
+            <tr><td>≤70</td><td colspan="2">저혈당 처치</td></tr>
+            <tr><td>≥500 또는 v/s unstable·의식장애</td><td colspan="2">고혈당성 응급(DKA·HHS) 의심</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">표는 시작점일 뿐이다. 환자 반응(식사량, 스테로이드, 감염)을 보고 조정한다.</p>
+    </section>
+
+    <section aria-labelledby="g3">
+      <h2 id="g3"><span class="num">03 — Basal-bolus</span>인슐린 시작 계산</h2>
+      <ul>
+        <li>체내 분비(기저 + 식전 초속효성)를 모방한다. 총 요구량 = <strong>체중 × 0.25 unit</strong> — 60 kg이면 15 unit.</li>
+        <li>절반을 기저, 절반을 3회 식전 초속효성으로 나눈다. 예: 9 unit 기저 + 아침·점심·저녁 2 unit씩.</li>
+        <li>초속효성(노보래피드·휴마로그): 식전 30분, onset 15분, 3–5시간 유지. 기저(란투스·트레시바): 아침 식전 또는 취침 시.</li>
+        <li>매 투여마다 공기 제거·바늘 장착에 2 unit 정도를 쓰므로 <strong>injection마다 +2 unit</strong>를 처방한다.</li>
+        <li>이후 식전 + 취침 BST를 재서 fine tuning.</li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="g4">
+      <h2 id="g4"><span class="num">04 — Hypo</span>저혈당</h2>
+      <div class="tbl-wrap">
+        <table>
+          <caption>저혈당 처치</caption>
+          <thead><tr><th>상황</th><th>처치</th></tr></thead>
+          <tbody>
+            <tr><td>CNS 증상(+), 의식장애</td><td>50% DS 20 mL IV</td></tr>
+            <tr><td>CNS 증상(−)</td><td>포도당 PO 10 g</td></tr>
+            <tr><td>30분 간격 2회까지 반복해도 증상 유지</td><td>10% DS 40 cc/hr 시작, 10 cc/hr씩 증량하며 기질적 원인 탐색</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>원인은 <strong>ABCDEF</strong>: Alcohol / Bacteria(균혈증) / Cancer / Drug(특히 SU·insulin) / Endocrine(insulinoma) / Failure(다장기 부전).
+        SU와 지속형 인슐린은 저혈당이 길게 지속되므로 10% DS 40 cc/hr로 관찰하며 입원이 필요하다.</p>
+      <p>전형적 사례: 당뇨약 복용 중 최근 oral intake 저하 → mental change. 의식저하나 편측·전신 위약이 보이면
+        기계적으로 BST부터 확인한다.</p>
+    </section>
+
+    <section aria-labelledby="g5">
+      <h2 id="g5"><span class="num">05 — DKA/HHS</span>응급 고혈당</h2>
+      <p>DKA는 인슐린 부족으로 세포가 지방을 쓰고 케톤이 쌓여 high AG 산증(BST 250–300대),
+        HHS는 더 심한 고혈당(BST &gt;600)과 고삼투압성 이뇨로 인한 탈수·순환장애가 주된 문제다.
+        유발 요인은 <strong>Multiple I</strong>: Infection, Infarction, Inflammation, Insulin deficiency, Iatrogenic, Infant-carry(임신) + 탈수.</p>
+      <div class="tbl-wrap">
+        <table>
+          <caption>초기 처치 순서</caption>
+          <thead><tr><th>단계</th><th>내용</th></tr></thead>
+          <tbody>
+            <tr><td>1. 수액</td><td>N/S 500–1,000 mL/hr. 탈수가 심하면(체중 10% 이상 감소) N/S 유지, 심하지 않고 Na 정상~상승이면 half saline 250–500 mL/hr, Na 감소면 N/S 250–500 mL/hr.</td></tr>
+            <tr><td>2. 인슐린</td><td>Humulin R 0.1 unit/kg bolus + 0.1 unit/kg/hr IV. 예: 50 unit/0.5 mL를 49.5 mL N/S에 mix(1 unit/mL) → 5 unit bolus, 5 cc/hr.</td></tr>
+            <tr><td>3. 칼륨</td><td>K 감소 → 인슐린 중지 + K 20–30 mEq/hr. K &gt;5 → 투여 없이 2시간 후 재검. 정상 → fluid에 K 20–30 mEq/L. 최종 목표 4–5.</td></tr>
+            <tr><td>4. 목표</td><td>혈당 강하 속도 50 mg/dL/hr. DKA에서 200, HHS에서 300 도달 시 0.02–0.05 unit/kg/hr로 감량 + 5% DS + half saline 150–250 cc/hr.</td></tr>
+            <tr><td>5. 산증</td><td>pH &lt;6.9일 때만 제한적으로 bicarbonate 100 mmol + N/S 400 cc + KCl 20 mEq를 2시간 투여, pH &gt;7까지.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>혈당이 200 이하로 내려오면 피하 인슐린으로 전환을 고려하고, 그 뒤로는 strict 조절을 하지 않는다.
+        당독성(glucose toxicity)이 해소되면 조절이 급속히 좋아지므로, 혈당이 떨어지면 med/insulin 감량을 염두에 둔다.</p>
+      <p class="note">Sick day: 감염 등으로 식사를 못하고 물을 못 마시면 응급이 생긴다 — 수분 섭취와 죽이라도 먹도록 교육.
+        SGLT2i는 수술·감염·금식·구토 시 2–3일 전 중단.</p>
+    </section>
+
+    <div class="pager">
+      <a href="circulation.html">← 순환</a>
+      <a href="gi.html">복통·출혈 →</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <p>개인 학습·실무 정리. 야간 판단의 보조 자료이며, 최종 판단과 처방은 담당 의사가 한다.</p>
+    <p><a href="https://kimhs950627.github.io/">← 학습 페이지 허브</a> · <a href="https://kimhs950627.github.io/primary-care-protocol/">외래 프로토콜</a></p>
+  </div>
+</footer>
+</body>
+</html>

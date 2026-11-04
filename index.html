@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>병동 당직 — 야간 호출 대응</title>
+<meta name="description" content="야간 병동에서 반복되는 발열·호흡곤란·의식저하·저혈압·혈당·복통 출혈의 첫 대응과 상의 기준을 정리한 개인 실무 노트.">
+<meta property="og:title" content="병동 당직 — 야간 호출 대응">
+<meta property="og:description" content="야간 병동에서 반복되는 발열·호흡곤란·의식저하·저혈압·혈당·복통 출혈의 첫 대응과 상의 기준을 정리한 개인 실무 노트.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles/tokens.css">
+<link rel="stylesheet" href="styles/site.css">
+<link rel="stylesheet" href="styles/theme.css">
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <a class="brand" href="index.html">Ward Nights · 당직</a>
+    <nav class="nav" aria-label="장 이동">
+      <a href="index.html" aria-current="page">개요</a>
+      <a href="fever.html">발열</a>
+      <a href="breathing.html">호흡</a>
+      <a href="mental.html">의식</a>
+      <a href="circulation.html">순환</a>
+      <a href="glucose.html">혈당</a>
+      <a href="gi.html">복통·출혈</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+
+    <div class="hero">
+      <p class="eyebrow">Ward nights · 당직</p>
+      <h1>새벽 두 시의 호출, 무엇부터 볼 것인가</h1>
+      <p class="lede">야간에는 검사도 사람도 느리다. 그래서 순서가 전부다 — <strong>먼저 배제할 것</strong>을 먼저 배제하고, 가역적인 원인(BST·Airway·산소)부터 손댄다.</p>
+      <div class="meta"><span>원노트: 혈당 관리 · 내과병동 당직 어시스트 (2026-09)</span><span>개인 학습 정리</span></div>
+    </div>
+
+
+    <section aria-labelledby="w1">
+      <h2 id="w1"><span class="num">01 — Order</span>야간 호출은 대개 이 순서로 온다</h2>
+      <p>당직에서 반복되는 호출은 <strong>발열 → 숨참 → 의식저하 → 혈압 → 혈당 → 복통·출혈</strong> 순으로 많다.
+        각 장은 “먼저 배제할 것 → 최소 검사 → 지금 할 처치 → 상의 기준” 순서로 맞춰 두었다.</p>
+      <div class="card-grid">
+        <a class="card" href="fever.html"><span class="k">01</span><b>발열</b><span>qSOFA · fever focus · 8D</span></a>
+        <a class="card" href="breathing.html"><span class="k">02</span><b>숨참·저산소</b><span>O2 사다리 · Airvo · CO2 narcosis</span></a>
+        <a class="card" href="mental.html"><span class="k">03</span><b>의식저하</b><span>ABC + BST · AIUEOTIPS</span></a>
+        <a class="card" href="circulation.html"><span class="k">04</span><b>저혈압·고혈압</b><span>MAP 65 · shock 3분류 · norpin</span></a>
+        <a class="card" href="glucose.html"><span class="k">05</span><b>혈당</b><span>sliding scale · 저혈당 · DKA/HHS</span></a>
+        <a class="card" href="gi.html"><span class="k">06</span><b>복통·출혈</b><span>설사·변비 · 토혈/혈변/혈뇨</span></a>
+      </div>
+    </section>
+
+    <section aria-labelledby="w2">
+      <h2 id="w2"><span class="num">02 — Before anything</span>어떤 호출이든 먼저 하는 세 가지</h2>
+      <div class="tbl-wrap">
+        <table>
+          <caption>호출 공통 첫 세트</caption>
+          <thead><tr><th>순서</th><th>할 일</th><th>이유</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>BST(혈당) 확인</td><td>의식저하·발한·경련의 흔한 가역 원인. 저혈당은 분 단위로 중재한다.</td></tr>
+            <tr><td>2</td><td>ABC + 활력징후, SpO2, RR</td><td>Airway가 막혀 있으면 산소를 줘도 SpO2가 오르지 않는다.</td></tr>
+            <tr><td>3</td><td>기존 baseline과 비교</td><td>정상 범위여도 “원래보다” 떨어졌으면 쇼크일 수 있다.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note">고령·당뇨·스테로이드·NSAID 사용자는 열이 안 오를 수 있다. 정상 체온이 정상을 뜻하지 않는다.</p>
+    </section>
+
+    <section aria-labelledby="w3">
+      <h2 id="w3"><span class="num">03 — Escalate</span>수 분 내 상의가 필요한 것</h2>
+      <ul>
+        <li>Sepsis / septic shock, bacterial meningitis, febrile neutropenia.</li>
+        <li>Cholangitis, necrotizing fasciitis, APN, 복막투석 후 복막염, septic arthritis, abscess.</li>
+        <li>DKA·HHS, 전격성 1형 의심, SGLT2i 복용 중 euglycemic DKA.</li>
+        <li>기도폐색, 폐색전, 긴장성 기흉, 심낭압전, 급성 심근경색.</li>
+        <li>뇌졸중 의심(국소신경학적 증상·갑작스런 의식변화), 다량 토혈·혈변, 자발호흡 없는 환자.</li>
+      </ul>
+      <p>상의할 때는 <strong>“지금 수치 + 30분 전과 비교 + 내가 이미 한 처치 + 원하는 결정”</strong> 네 가지를 한 문장으로 말한다.</p>
+    </section>
+
+    <div class="pager">
+      <a href="fever.html">발열 →</a>
+      <a href="glucose.html">혈당 →</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    <p>개인 학습·실무 정리. 야간 판단의 보조 자료이며, 최종 판단과 처방은 담당 의사가 한다.</p>
+    <p><a href="https://kimhs950627.github.io/">← 학습 페이지 허브</a> · <a href="https://kimhs950627.github.io/primary-care-protocol/">외래 프로토콜</a></p>
+  </div>
+</footer>
+</body>
+</html>
