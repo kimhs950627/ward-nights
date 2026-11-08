@@ -1,0 +1,1620 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>수액 처방 마스터 v5 | IV Fluid & Electrolyte Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Custom scrollbar for sleek clinical view */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    .badge-vital {
+      @apply px-2 py-0.5 rounded text-xs font-semibold;
+    }
+
+    /* ===== v5: mobile-first + dark mode ===== */
+    :root { color-scheme: light; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { background:#f6f7fb; transition:background .2s,color .2s; }
+    button, input, select { -webkit-tap-highlight-color: transparent; }
+    .mode-toggle { min-width:38px; min-height:38px; border-radius:12px; display:inline-flex; align-items:center; justify-content:center; background:#1e293b; color:#f8fafc; border:1px solid #475569; cursor:pointer; flex-shrink:0; }
+    .mode-toggle:hover { background:#334155; }
+    .sticky-action { position:fixed; left:0; right:0; bottom:0; z-index:40; padding:10px 14px max(10px, env(safe-area-inset-bottom)); background:rgba(246,247,251,.93); border-top:1px solid #e2e8f0; backdrop-filter:blur(12px); }
+    .sticky-action-inner { max-width:700px; margin:0 auto; display:flex; gap:8px; }
+    .sticky-action button { min-height:46px; border-radius:14px; font-weight:700; font-size:14px; }
+    .rate-chip { padding:8px 14px; border-radius:999px; border:1px solid #cbd5e1; background:#fff; color:#334155; font-size:13px; font-weight:700; cursor:pointer; }
+    .rate-chip.active { background:#2563eb; color:#fff; border-color:#2563eb; }
+    .fluid-chip { padding:8px 14px; border-radius:999px; border:1px solid #cbd5e1; background:#fff; color:#334155; font-size:13px; font-weight:700; cursor:pointer; }
+    .fluid-chip.active { background:#0d9488; color:#fff; border-color:#0d9488; }
+    .add-card { border:1px solid #e2e8f0; border-left:4px solid #6366f1; border-radius:12px; padding:12px; background:#fff; }
+    .add-card h4 { font-size:13px; font-weight:800; color:#4338ca; margin:0 0 6px; }
+    .add-card .spec { display:grid; grid-template-columns:auto 1fr; gap:2px 10px; font-size:12px; }
+    .add-card .spec dt { color:#64748b; font-weight:600; }
+    .add-card .spec dd { margin:0; color:#1e293b; }
+    .warn-item { display:flex; gap:8px; font-size:12px; padding:8px 10px; border-radius:10px; background:#fffbeb; border:1px solid #fcd34d; color:#92400e; margin-top:6px; line-height:1.5; }
+    @media (max-width: 767px) {
+      body { font-size:15px; }
+      header .max-w-7xl { padding:10px 14px; align-items:flex-start; }
+      header h1 { font-size:15px; line-height:1.2; }
+      header p { display:none; }
+      header .w-10 { width:34px; height:34px; font-size:16px; border-radius:10px; }
+      header .overflow-x-auto { width:100%; order:3; padding:4px 0 0; gap:6px; }
+      header .overflow-x-auto::-webkit-scrollbar { display:none; }
+      header .overflow-x-auto button { white-space:nowrap; min-height:34px; padding:6px 10px; font-size:11px; border-radius:999px; flex-shrink:0; }
+      header .overflow-x-auto > span { display:none; }
+      main.max-w-7xl { padding:12px 12px 92px; gap:12px; }
+      section { border-radius:16px !important; }
+      .grid.grid-cols-3 { grid-template-columns:1fr 1fr; gap:10px; }
+      .grid.grid-cols-3 > div:last-child { grid-column:1 / -1; }
+      .grid.grid-cols-4 { grid-template-columns:1fr 1fr; gap:9px; }
+      .grid.grid-cols-5 { grid-template-columns:repeat(4,1fr); gap:6px; }
+      .grid.grid-cols-5 > div:last-child { grid-column:1 / -1; }
+      input, select { min-height:40px; font-size:16px !important; }
+      label { font-size:12px !important; }
+      .text-xs { font-size:12px !important; }
+      .text-sm { font-size:14px !important; }
+      .text-lg { font-size:17px !important; }
+      .p-4, .p-5 { padding:14px !important; }
+      .rounded-xl { border-radius:16px !important; }
+      #detailsContent .grid { grid-template-columns:1fr !important; }
+      #detailsContent .grid .grid { grid-template-columns:1fr 1fr !important; }
+    }
+    @media (min-width: 768px) { .sticky-action { display:none; } }
+    body.dark { color:#e5e7eb; background:#0f172a; color-scheme:dark; }
+    body.dark header { background:#020617 !important; border-color:#334155 !important; }
+    body.dark .sticky-action { background:rgba(15,23,42,.93); border-color:#334155; }
+    body.dark section, body.dark .bg-white { background:#111827 !important; border-color:#334155 !important; color:#e5e7eb !important; }
+    body.dark .bg-slate-50, body.dark .bg-slate-100 { background:#1e293b !important; }
+    body.dark .text-slate-900, body.dark .text-slate-800, body.dark .text-slate-700, body.dark .text-slate-600 { color:#e5e7eb !important; }
+    body.dark .text-slate-500, body.dark .text-slate-400 { color:#94a3b8 !important; }
+    body.dark input, body.dark select { background:#0f172a !important; color:#f8fafc !important; border-color:#475569 !important; }
+    body.dark .bg-rose-50\/40 { background:rgba(127,29,29,.22) !important; }
+    body.dark .bg-blue-50\/40 { background:rgba(30,64,175,.20) !important; }
+    body.dark .bg-amber-50\/70 { background:rgba(120,53,15,.22) !important; }
+    body.dark .bg-purple-50\/40, body.dark .bg-purple-50 { background:rgba(76,29,149,.20) !important; }
+    body.dark .border-slate-200, body.dark .border-slate-100 { border-color:#334155 !important; }
+    body.dark .rate-chip, body.dark .fluid-chip { background:#1e293b; color:#e2e8f0; border-color:#475569; }
+    body.dark .add-card { background:#111827; border-color:#334155; }
+    body.dark .add-card .spec dd { color:#e5e7eb; }
+    body.dark .warn-item { background:rgba(120,53,15,.25); border-color:#92400e; color:#fcd34d; }
+
+    /* ===== v6/v7: acid-base dedicated card ===== */
+    .ab-card { border:2px solid #059669; border-radius:16px; background:linear-gradient(135deg,#ecfdf5 0%,#f0fdfa 100%); padding:16px; }
+    .ab-head { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+    .ab-head .ab-title { font-size:14px; font-weight:800; color:#065f46; }
+    .ab-diag { display:inline-block; background:#059669; color:#fff; font-weight:800; font-size:13px; padding:4px 12px; border-radius:999px; }
+    .ab-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(130px,1fr)); gap:8px; margin:8px 0; }
+    .ab-stat { background:#fff; border:1px solid #a7f3d0; border-radius:10px; padding:8px 10px; text-align:center; }
+    .ab-stat .lbl { font-size:10px; color:#047857; font-weight:700; display:block; }
+    .ab-stat .val { font-size:15px; font-weight:800; color:#064e3b; font-family:'JetBrains Mono',monospace; }
+    .ab-sec { background:#fff; border:1px solid #a7f3d0; border-radius:10px; padding:10px 12px; margin-top:8px; font-size:12px; line-height:1.6; color:#1f2937; }
+    .ab-sec .sec-t { font-weight:800; color:#065f46; font-size:12px; display:block; margin-bottom:4px; }
+    .ab-dose { font-size:17px; font-weight:800; color:#b91c1c; }
+    .ab-caution { background:#fff7ed; border:1px solid #fdba74; border-radius:10px; padding:8px 10px; margin-top:8px; font-size:11.5px; color:#9a3412; line-height:1.55; }
+    .dual-line { background:#fff; border:1px dashed #e11d48; border-radius:10px; padding:8px 10px; margin-top:6px; font-size:12px; }
+    body.dark .ab-card { background:linear-gradient(135deg,rgba(6,78,59,.25),rgba(19,78,74,.25)); border-color:#059669; }
+    body.dark .ab-head .ab-title { color:#6ee7b7; }
+    body.dark .ab-stat { background:#111827; border-color:#065f46; }
+    body.dark .ab-stat .val { color:#6ee7b7; }
+    body.dark .ab-sec { background:#111827; border-color:#065f46; color:#e5e7eb; }
+    body.dark .ab-sec .sec-t { color:#6ee7b7; }
+    body.dark .ab-caution { background:rgba(154,52,18,.25); border-color:#c2410c; color:#fdba74; }
+    body.dark .dual-line { background:#111827; border-color:#e11d48; }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen">
+  <header class="bg-slate-900 text-white sticky top-0 z-50 border-b border-slate-700 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-inner">
+          <i class="fa-solid fa-droplet"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-lg font-bold tracking-tight text-white">IM Chief Resident 수액 처방 마스터</h1>
+            <span class="bg-blue-900/80 text-blue-300 text-xs px-2 py-0.5 rounded border border-blue-500/40">저년차 임상지원 v7.1</span>
+          </div>
+          <p class="text-xs text-slate-400">국내 제제 · 복합장애 동시처치 · 산-염기 카드 · 패혈증 프리셋 · 다크모드</p>
+        </div>
+      </div>
+      <button type="button" class="mode-toggle" onclick="toggleDarkMode()" aria-label="다크 모드 전환" title="다크 모드"><i id="themeIcon" class="fa-solid fa-moon"></i></button>
+      
+      <!-- Preset Scenarios -->
+      <div class="flex items-center space-x-2 overflow-x-auto py-1">
+        <span class="text-xs text-slate-400 font-medium whitespace-nowrap"><i class="fa-solid fa-bolt text-amber-400 mr-1"></i>응급 프리셋:</span>
+        <button onclick="applyPreset('hyponatremia_severe')" class="px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">중증 저Na</button>
+        <button onclick="applyPreset('hyponatremia_chronic')" class="px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">만성 저Na</button>
+        <button onclick="applyPreset('hypernatremia')" class="px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">고Na</button>
+        <button onclick="applyPreset('hypokalemia')" class="px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">저K</button>
+        <button onclick="applyPreset('hyperkalemia')" class="px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">고K</button>
+        <button onclick="applyPreset('hyperna_hyperk')" class="px-2.5 py-1 text-xs font-medium rounded-lg bg-rose-900 hover:bg-rose-800 text-rose-100 border border-rose-700 transition">고Na+고K</button>
+        <button onclick="applyPreset('sepsis')" class="px-2.5 py-1 text-xs font-medium rounded-lg bg-red-800 hover:bg-red-700 text-red-100 border border-red-600 transition">패혈증 쇼크</button>
+        <button onclick="applyPreset('hypochloremia')" class="px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">저Cl</button>
+        <button onclick="applyPreset('hyperchloremia')" class="px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">고Cl</button>
+        <button onclick="applyPreset('dka')" class="px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">DKA/HHS</button>
+        <button onclick="applyPreset('routine')" class="px-2.5 py-1 text-xs font-medium rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition">정상치 리셋</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- Left Column: Patient Profile & Labs (5 Cols) -->
+    <div class="lg:col-span-5 space-y-5">
+      
+      <!-- Patient Basic Info Card -->
+      <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+        <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center justify-between">
+          <span><i class="fa-solid fa-user-injured text-blue-600 mr-2"></i>1. 환자 기본 정보 (Patient Profile)</span>
+          <span id="calculatedTBW" class="text-xs font-mono font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">TBW: -- L</span>
+        </h2>
+        
+        <div class="grid grid-cols-3 gap-3 mb-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">성별</label>
+            <div class="grid grid-cols-2 gap-1 bg-slate-100 p-1 rounded-lg">
+              <button type="button" id="btnMale" onclick="setGender('male')" class="py-1 text-xs font-bold rounded bg-white shadow-sm text-blue-700">남성</button>
+              <button type="button" id="btnFemale" onclick="setGender('female')" class="py-1 text-xs font-medium rounded text-slate-600">여성</button>
+            </div>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">나이 (세)</label>
+            <input type="number" id="patientAge" value="65" onchange="recalculateAll()" class="w-full px-2.5 py-1.5 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">신장 (cm)</label>
+            <input type="number" id="patientHeight" value="170" onchange="recalculateAll()" class="w-full px-2.5 py-1.5 text-sm rounded-lg border border-slate-300 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+          </div>
+        </div>
+
+        <!-- Body Weight Selector -->
+        <div class="mb-3">
+          <div class="flex justify-between items-center mb-1">
+            <label class="text-xs font-medium text-slate-600">체중 (Body Weight, kg)</label>
+            <span class="text-xs text-slate-400">빠른 선택 가능</span>
+          </div>
+          <div class="grid grid-cols-5 gap-1.5 mb-2">
+            <button type="button" onclick="setBW(50)" class="bw-preset py-1 text-xs rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium">50 kg</button>
+            <button type="button" onclick="setBW(60)" class="bw-preset py-1 text-xs rounded bg-blue-600 text-white font-bold">60 kg</button>
+            <button type="button" onclick="setBW(70)" class="bw-preset py-1 text-xs rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium">70 kg</button>
+            <button type="button" onclick="setBW(80)" class="bw-preset py-1 text-xs rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium">80 kg</button>
+            <div class="relative">
+              <input type="number" id="patientBW" value="60" oninput="recalculateAll()" class="w-full px-2 py-1 text-xs text-center font-bold text-slate-800 rounded border border-slate-300 focus:ring-1 focus:ring-blue-500">
+            </div>
+          </div>
+        </div>
+
+        <!-- Vitals & Turgor -->
+        <div class="grid grid-cols-4 gap-2 pt-2 border-t border-slate-100">
+          <div>
+            <label class="block text-[11px] text-slate-500">수축기혈압 (SBP)</label>
+            <input type="number" id="vitalsSBP" value="110" onchange="recalculateAll()" class="w-full px-2 py-1 text-xs rounded border border-slate-200">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-500">심박수 (HR /m)</label>
+            <input type="number" id="vitalsHR" value="84" onchange="recalculateAll()" class="w-full px-2 py-1 text-xs rounded border border-slate-200">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-500">체온 (Temp ℃)</label>
+            <input type="number" id="patientTemp" step="0.1" value="36.8" onchange="recalculateAll()" class="w-full px-2 py-1 text-xs rounded border border-slate-200">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-500">시간당 요량(cc/h, 미측정 가능)</label>
+            <div class="flex gap-1"><input type="number" id="urinePerHour" value="50" onchange="recalculateAll()" class="w-full px-2 py-1 text-xs rounded border border-slate-200" placeholder="미측정"><select id="urineMeasured" onchange="recalculateAll()" class="px-1 py-1 text-[11px] rounded border border-slate-200"><option value="yes" selected>측정</option><option value="no">미측정</option></select></div>
+          </div>
+        </div>
+        
+        <!-- Clinical Volume Status Check -->
+        <div class="mt-3 p-2 bg-slate-50 rounded-lg text-xs flex flex-wrap items-center gap-3">
+          <span class="font-semibold text-slate-600">임상 Volume:</span>
+          <label class="inline-flex items-center space-x-1 cursor-pointer">
+            <input type="radio" name="volStatus" value="hypo" onchange="recalculateAll()" checked class="text-blue-600">
+            <span>Hypovolemic(탈수/쇼크)</span>
+          </label>
+          <label class="inline-flex items-center space-x-1 cursor-pointer">
+            <input type="radio" name="volStatus" value="eu" onchange="recalculateAll()" class="text-blue-600">
+            <span>Euvolemic(정상/SIADH)</span>
+          </label>
+          <label class="inline-flex items-center space-x-1 cursor-pointer">
+            <input type="radio" name="volStatus" value="hyper" onchange="recalculateAll()" class="text-blue-600">
+            <span>Hypervolemic(부종/심·신·간부전)</span>
+          </label>
+        </div>
+      </section>
+
+      <!-- Laboratory Results Card -->
+      <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+        <div class="flex items-center justify-between mb-3">
+          <h2 class="text-sm font-bold text-slate-700 uppercase tracking-wider flex items-center">
+            <i class="fa-solid fa-vial text-emerald-600 mr-2"></i>2. 검사 결과 입력 (ABGA & Labs)
+          </h2>
+          <button onclick="resetToNormalLabs()" class="text-xs text-blue-600 hover:text-blue-800 underline">정상치 리셋</button>
+        </div>
+
+        <!-- Serum Electrolytes -->
+        <div class="mb-3">
+          <span class="text-xs font-bold text-slate-500 block mb-1.5">혈청 전해질 & 대사 지표 (Serum Chemistry)</span>
+          <div class="grid grid-cols-4 gap-2">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600">Na⁺ (mEq/L)</label>
+              <input type="number" id="labNa" value="140" oninput="recalculateAll()" class="w-full px-2 py-1 text-sm font-mono font-bold rounded border border-slate-300 focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600">K⁺ (mEq/L)</label>
+              <input type="number" step="0.1" id="labK" value="4.0" oninput="recalculateAll()" class="w-full px-2 py-1 text-sm font-mono font-bold rounded border border-slate-300 focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600">Cl⁻ (mEq/L)</label>
+              <input type="number" id="labCl" value="102" oninput="recalculateAll()" class="w-full px-2 py-1 text-sm font-mono font-bold rounded border border-slate-300 focus:border-blue-500">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600">Glucose (mg/dL)</label>
+              <input type="number" id="labGlu" value="100" oninput="recalculateAll()" class="w-full px-2 py-1 text-sm font-mono font-bold rounded border border-slate-300 focus:border-blue-500">
+            </div>
+          </div>
+          <div class="grid grid-cols-4 gap-2 mt-2">
+            <div>
+              <label class="block text-[11px] text-slate-600">BUN (mg/dL)</label>
+              <input type="number" id="labBUN" value="15" oninput="recalculateAll()" class="w-full px-2 py-1 text-xs font-mono rounded border border-slate-300">
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-600">Cr (mg/dL)</label>
+              <input type="number" step="0.1" id="labCr" value="0.9" oninput="recalculateAll()" class="w-full px-2 py-1 text-xs font-mono rounded border border-slate-300">
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-600">Albumin (g/dL)</label>
+              <input type="number" step="0.1" id="labAlb" value="4.0" oninput="recalculateAll()" class="w-full px-2 py-1 text-xs font-mono rounded border border-slate-300">
+            </div>
+            <div>
+              <label class="block text-[11px] text-slate-600">Mg²⁺ (mg/dL)</label>
+              <input type="number" step="0.1" id="labMg" value="2.0" oninput="recalculateAll()" class="w-full px-2 py-1 text-xs font-mono rounded border border-slate-300">
+            </div>
+          </div>
+        </div>
+
+        <!-- ABGA Panel -->
+        <div class="mb-3 pt-2 border-t border-slate-100">
+          <span class="text-xs font-bold text-slate-500 block mb-1.5">동맥혈가스분석 (ABGA)</span>
+          <div class="grid grid-cols-4 gap-2">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600">pH</label>
+              <input type="number" step="0.01" id="abgaPH" value="7.40" oninput="recalculateAll()" class="w-full px-2 py-1 text-sm font-mono font-bold rounded border border-slate-300">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600">PaCO₂ (mmHg)</label>
+              <input type="number" id="abgaPaCO2" value="40" oninput="recalculateAll()" class="w-full px-2 py-1 text-sm font-mono font-bold rounded border border-slate-300">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600">PaO₂ (mmHg)</label>
+              <input type="number" id="abgaPaO2" value="95" oninput="recalculateAll()" class="w-full px-2 py-1 text-sm font-mono font-bold rounded border border-slate-300">
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600">HCO₃⁻ (mEq/L)</label>
+              <input type="number" step="0.5" id="abgaHCO3" value="24" oninput="recalculateAll()" class="w-full px-2 py-1 text-sm font-mono font-bold rounded border border-slate-300">
+            </div>
+          </div>
+        </div>
+
+        <!-- Spot Urine Labs (Optional but crucial for Osmolality / TTKG) -->
+        <div class="pt-2 border-t border-slate-100">
+          <div class="flex items-center justify-between mb-1">
+            <span class="text-xs font-bold text-slate-500">소변 검사치 (Spot Urine - 선택/정밀진단용)</span>
+            <span class="text-[10px] text-slate-400">TTKG, FENa, U-Osm 계산</span>
+          </div>
+          <div class="grid grid-cols-4 gap-2">
+            <div>
+              <label class="block text-[10px] text-slate-600">U-Na (mEq/L)</label>
+              <input type="number" id="urineNa" value="60" oninput="recalculateAll()" class="w-full px-2 py-0.5 text-xs font-mono rounded border border-slate-200">
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-600">U-K (mEq/L)</label>
+              <input type="number" id="urineK" value="30" oninput="recalculateAll()" class="w-full px-2 py-0.5 text-xs font-mono rounded border border-slate-200">
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-600">U-Cr (mg/dL)</label>
+              <input type="number" id="urineCr" value="80" oninput="recalculateAll()" class="w-full px-2 py-0.5 text-xs font-mono rounded border border-slate-200">
+            </div>
+            <div>
+              <label class="block text-[10px] text-slate-600">U-Osm (mOsm)</label>
+              <input type="number" id="urineOsm" value="450" oninput="recalculateAll()" class="w-full px-2 py-0.5 text-xs font-mono rounded border border-slate-200">
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Physiologic Calculations & Diagnosis Summary Card -->
+      <section class="bg-slate-900 text-white rounded-xl shadow-sm p-4 space-y-3">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center justify-between">
+          <span><i class="fa-solid fa-calculator text-cyan-400 mr-2"></i>생체 생리 지표 계산 결과</span>
+          <span class="text-[10px] text-cyan-300">실시간 연동</span>
+        </h3>
+        
+        <div class="grid grid-cols-3 gap-2 text-center text-xs">
+          <div class="bg-slate-800 p-2 rounded-lg border border-slate-700">
+            <span class="block text-[10px] text-slate-400">혈장 삼투압 (Posm)</span>
+            <span id="resPosm" class="text-sm font-bold font-mono text-cyan-400">290 mOsm</span>
+            <span id="resTonicity" class="block text-[10px] text-slate-400">유효: 285</span>
+          </div>
+          <div class="bg-slate-800 p-2 rounded-lg border border-slate-700">
+            <span class="block text-[10px] text-slate-400">음이온차 (Anion Gap)</span>
+            <span id="resAG" class="text-sm font-bold font-mono text-amber-400">14.0</span>
+            <span id="resAGCorr" class="block text-[10px] text-slate-400">Alb보정: 14.0</span>
+          </div>
+          <div class="bg-slate-800 p-2 rounded-lg border border-slate-700">
+            <span class="block text-[10px] text-slate-400">FENa (%)</span>
+            <span id="resFENa" class="text-sm font-bold font-mono text-emerald-400">0.8%</span>
+            <span id="resBUNCAT" class="block text-[10px] text-slate-400">BUN/Cr: 16.7</span>
+          </div>
+        </div>
+
+        <div class="bg-slate-800/80 p-2.5 rounded-lg border border-slate-700 text-xs space-y-1">
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400">산염기 판독:</span>
+            <span id="resAcidBase" class="font-semibold text-emerald-300">Normal Acid-Base status</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400">호흡성 보상 평가:</span>
+            <span id="resComp" class="font-mono text-slate-300">PaCO2 적정 (Winters: 36-40)</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-slate-400">불감손실 (호흡/피부):</span>
+            <span id="resInsensible" class="font-mono text-slate-300">900 mL/day</span>
+          </div>
+          <div class="flex items-center justify-between border-t border-slate-700/60 pt-1 mt-1">
+            <span class="text-slate-400">K-배설 지표 (TTKG):</span>
+            <span id="resTTKG" class="font-mono text-amber-300">TTKG: 6.2 (정상)</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Right Column: Specific Fluid Prescription & Endpoints (7 Cols) -->
+    <div class="lg:col-span-7 space-y-5">
+      
+      <!-- Primary Emergency Action Alert Banner -->
+      <div id="urgentAlertBox" class="hidden p-3.5 rounded-xl border flex items-start space-x-3 transition">
+        <i id="urgentAlertIcon" class="fa-solid fa-triangle-exclamation text-xl mt-0.5"></i>
+        <div class="flex-1">
+          <h4 id="urgentAlertTitle" class="text-sm font-bold">긴급 처치 요망</h4>
+          <p id="urgentAlertDesc" class="text-xs mt-0.5 leading-relaxed"></p>
+        </div>
+      </div>
+
+      <!-- Chief Resident's Step-by-Step Order Card -->
+      <section class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+          <div>
+            <span class="text-xs font-extrabold uppercase text-blue-600 tracking-wider">PRESCRIPTION PLAN</span>
+            <h2 class="text-lg font-bold text-slate-900 flex items-center">
+              <i class="fa-solid fa-file-prescription text-blue-600 mr-2"></i>최적 수액 처방 오더 (Rx Order Sheet)
+            </h2>
+          </div>
+          <div class="flex gap-2 items-center">
+            <select id="emrFormat" class="px-2 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-700">
+              <option value="ward">병동</option>
+              <option value="er">응급실</option>
+              <option value="icu">ICU</option>
+            </select>
+            <button onclick="copyOrderToClipboard()" class="px-3 py-1.5 text-xs font-semibold bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg border border-blue-200 flex items-center space-x-1 transition">
+              <i class="fa-regular fa-copy"></i>
+              <span>오더 복사</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Stage 1: Immediate / Resuscitation / Deficit Correction -->
+        <div class="mt-4 space-y-4">
+          <div id="stage1Card" class="border-l-4 border-rose-500 bg-rose-50/40 p-3.5 rounded-r-xl border border-t-0 border-b-0 border-r-0">
+            <div class="flex items-center justify-between mb-1">
+              <span id="stage1Title" class="text-xs font-bold text-rose-700 flex items-center">
+                <span id="stage1Num" class="w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center text-[10px] mr-1.5">1</span>
+                긴급/결핍 보정 단계 (Stage 1: Resuscitation / Urgent Deficit)
+              </span>
+              <span id="stage1SpeedBadge" class="text-xs font-mono font-bold text-rose-800 bg-rose-100 px-2 py-0.5 rounded">-- cc/hr</span>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs mt-2">
+              <div>
+                <span class="text-slate-500 block">선택 수액 및 조성:</span>
+                <p id="stage1Fluid" class="font-bold text-slate-800 text-sm mt-0.5 leading-snug">대한생리식염주사액 또는 중외엔에스주사액 0.9% NS 1,000 mL</p>
+                <p id="stage1Additive" class="text-rose-600 font-medium text-[11px]"></p>
+              </div>
+              <div class="bg-white p-2 rounded border border-rose-100 space-y-0.5">
+                <div class="flex justify-between">
+                  <span class="text-slate-500">점적 속도:</span>
+                  <span id="stage1RateDetail" class="font-mono font-bold text-slate-800">-- cc/hr (-- gtt/min)</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">투여 예정 시간:</span>
+                  <span id="stage1Duration" class="font-mono text-slate-700">첫 2~4시간 이내</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Target Endpoint for Stage 1 -->
+            <div class="mt-2.5 pt-2 border-t border-rose-200/60 text-xs text-rose-900 flex items-start space-x-1.5">
+              <i class="fa-solid fa-bullseye text-rose-600 mt-0.5"></i>
+              <div>
+                <span class="font-bold">목표 Endpoint: </span>
+                <span id="stage1Endpoint">MAP ≥ 65 mmHg 달성 시 Stage 2로 감속 전환. UOP 측정 가능 시 ≥0.5 cc/kg/hr 참고, 미측정 시 Cr/말초관류/의식상태로 대체 평가</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Stage 2: Maintenance & Fluid Deficit Continuation -->
+          <div id="stage2Card" class="border-l-4 border-blue-500 bg-blue-50/40 p-3.5 rounded-r-xl border border-t-0 border-b-0 border-r-0">
+            <div class="flex items-center justify-between mb-1">
+              <span id="stage2Title" class="text-xs font-bold text-blue-700 flex items-center">
+                <span id="stage2Num" class="w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center text-[10px] mr-1.5">2</span>
+                유지 및 잔여 결핍 보충 단계 (Stage 2: Maintenance & Safe Balance)
+              </span>
+              <span id="stage2SpeedBadge" class="text-xs font-mono font-bold text-blue-800 bg-blue-100 px-2 py-0.5 rounded">-- cc/hr</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs mt-2">
+              <div>
+                <span class="text-slate-500 block">선택 수액 (1일 총량 기준):</span>
+                <p id="stage2Fluid" class="font-bold text-slate-800 text-sm mt-0.5 leading-snug">원내 유지수액 또는 5% D/W + 전해질 혼합 2,000 mL/day</p>
+                <p id="stage2Composition" class="text-slate-500 text-[11px] mt-0.5">예: 5% D/W 1L + KCl 20mEq(중외염화칼륨 1앰플) mix</p>
+              </div>
+              <div class="bg-white p-2 rounded border border-blue-100 space-y-0.5">
+                <div class="flex justify-between">
+                  <span class="text-slate-500">투여 속도:</span>
+                  <span id="stage2RateDetail" class="font-mono font-bold text-slate-800">80 ~ 100 cc/hr</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">1일 목표 총 투여량:</span>
+                  <span id="stage2TotalDaily" class="font-mono text-slate-700">약 2,200 mL / 24hr</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Target Endpoint for Stage 2 -->
+            <div class="mt-2.5 pt-2 border-t border-blue-200/60 text-xs text-blue-900 flex items-start space-x-1.5">
+              <i class="fa-solid fa-bullseye text-blue-600 mt-0.5"></i>
+              <div>
+                <span class="font-bold">목표 Endpoint: </span>
+                <span id="stage2Endpoint">I/O Balance 중립~약간 음성, 안정적 혈청 전해질 유지, 폐울혈 징후(Crackle/CXR) 모니터링</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Concurrent Special Co-infusions (e.g. 3% NaCl, GI regimen, Mayron, KCl piggyback) -->
+          <div id="coInfusionBox" class="border-l-4 border-purple-500 bg-purple-50/40 p-3.5 rounded-r-xl border border-t-0 border-b-0 border-r-0">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-bold text-purple-700 flex items-center">
+                <i class="fa-solid fa-code-fork text-purple-600 mr-1.5"></i>
+                동시 병행 주입 또는 특수 중재 (Special Co-infusion / Regimen)
+              </span>
+              <span id="coInfusionTag" class="text-[11px] font-semibold text-purple-800 bg-purple-100 px-2 py-0.5 rounded">Active Intervention</span>
+            </div>
+            <div id="coInfusionContent" class="text-xs text-slate-700 mt-2 space-y-1.5">
+              <!-- Dynamically populated based on clinical conditions -->
+            </div>
+          </div>
+
+          <div id="interactionBox" class="hidden"></div>
+          <div id="additionalBox" class="hidden space-y-2.5"></div>
+
+          <!-- Acid-Base dedicated analysis & correction card -->
+          <div id="acidBaseBox" class="hidden"></div>
+        </div>
+
+        <!-- Monitoring & Next Lab Timebox -->
+        <div class="mt-4 p-3 bg-amber-50/70 border border-amber-200 rounded-xl text-xs flex items-start space-x-3">
+          <i class="fa-solid fa-clock-rotate-left text-amber-600 text-lg mt-0.5"></i>
+          <div class="flex-1">
+            <span class="font-bold text-amber-900">당직의 팔로업 타임라인 (Next Follow-up & Lab Orders):</span>
+            <p id="nextLabGuidance" class="text-amber-800 mt-0.5 leading-relaxed">
+              수액 투여 시작 후 2시간째 혈청 Na, K, Glucose 간이 추적 검사, 4~6시간 후 혈청 전해질 및 ABGA 재평가 필수.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Clinical Rules & Calculation Proofs Accordion -->
+      <section class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+        <div class="p-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between cursor-pointer" onclick="toggleDetails()">
+          <span class="text-xs font-bold text-slate-700 uppercase flex items-center">
+            <i class="fa-solid fa-book-medical text-slate-600 mr-2"></i>Chief's Clinical Pearl & 수액 공식 근거 (Caveman.md 요약)
+          </span>
+          <i id="detailChevron" class="fa-solid fa-chevron-down text-xs text-slate-500"></i>
+        </div>
+        
+        <div id="detailsContent" class="p-4 space-y-3 text-xs text-slate-600 border-t border-slate-100">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+              <span class="font-bold text-slate-800 block mb-1 text-[11px]"><i class="fa-solid fa-shield-halved text-rose-500 mr-1"></i>저Na 교정 속도 & ODS(CPM) 방지 원칙</span>
+              <p class="leading-relaxed text-[11px]">
+                • 만성 저나트륨혈증의 상승 속도는 <strong>24시간 동안 8~10 mEq/L 이내</strong>(시간당 0.5 mEq/L 이하)로 제한.<br>
+                • 신경학적 증상(의식저하, Seizure) 시 3% NaCl bolus로 <strong>120 mEq/L까지만 신속 교정</strong> 후 속도 감속.<br>
+                • <em>3% 식염수 조제(국내 제제):</em> 0.9% NS 500mL bag에서 100mL 제거 후 <strong>11.7% NaCl(중외염화나트륨 117mg/mL, 20mL=40mEq/앰플) 5앰플(100mL)</strong> mix → 약 523mEq/L (3.05%) 500mL.
+              </p>
+            </div>
+            <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+              <span class="font-bold text-slate-800 block mb-1 text-[11px]"><i class="fa-solid fa-heart-pulse text-amber-500 mr-1"></i>칼륨 투여 20-40-60-120의 법칙</span>
+              <p class="leading-relaxed text-[11px]">
+                • 제품: <strong>중외염화칼륨주사액 150mg/mL(20mL) = 40mEq/앰플</strong>, <strong>대한염화칼륨-20(20mL) = 20mEq/앰플</strong><br>
+                • 최대 투여 속도: <strong>20 mEq/hr 이하</strong> (말초는 10부터), 최대 농도: <strong>40 mEq/L 이하</strong> (허가사항)<br>
+                • 정상 1일 배설량: <strong>약 60 mEq/day</strong> (2.5 mEq/hr)<br>
+                • 1일 최대 투여 한계: <strong>120 mEq/day 이하</strong> (신기능 저하시 엄격 제한)
+              </p>
+            </div>
+          </div>
+          
+          <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
+            <span class="font-bold text-slate-800 block mb-1 text-[11px]"><i class="fa-solid fa-flask text-blue-500 mr-1"></i>수액 종류별 전해질 조성 (책 표 16, 17 요약)</span>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-2 text-[11px]">
+              <div><strong>0.9% NS:</strong> Na 154, Cl 154 · <span class="text-emerald-600 font-bold">K-free</span></div>
+              <div><strong>0.45% NS (HS):</strong> Na 77, Cl 77 · <span class="text-emerald-600 font-bold">K-free</span></div>
+              <div><strong>5% DW:</strong> Glu 50g/L · <span class="text-emerald-600 font-bold">K-free</span></div>
+              <div><strong>5% DS:</strong> Glu 50g + Na 154, Cl 154 · <span class="text-emerald-600 font-bold">K-free</span></div>
+              <div><strong>5% DNK1:</strong> Na 77, K 29.5, Cl 106.5, Glu 50</div>
+              <div><strong>5% DNK2:</strong> Na 77, K 20, Cl 97, Glu 50</div>
+              <div><strong>5% DNK3 (500mL):</strong> Na 34, K 20, Cl 54, Glu 25</div>
+              <div><strong>하트만(핫솔):</strong> Na 131, K 4, Cl 111, Lac 28</div>
+              <div><strong>플라스마솔루션A:</strong> Na 140, K 5, Mg 3, Cl 98 (고Na·고Cl·고K 시 주의)</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <div class="sticky-action">
+    <div class="sticky-action-inner">
+      <button type="button" onclick="document.getElementById('labNa').focus()" class="flex-1 bg-white text-slate-700 border border-slate-300"><i class="fa-solid fa-pen-to-square mr-1"></i>Lab 입력</button>
+      <button type="button" onclick="copyOrderToClipboard()" class="flex-[1.4] bg-blue-600 text-white"><i class="fa-regular fa-copy mr-1"></i>EMR 오더 복사</button>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2.5 rounded-lg shadow-xl text-xs font-medium opacity-0 transition-opacity pointer-events-none z-50 flex items-center space-x-2">
+    <i class="fa-solid fa-circle-check text-emerald-400"></i>
+    <span id="toastMsg">클립보드에 복사되었습니다.</span>
+  </div>
+
+  <script>
+    // State management
+    let state = {
+      gender: 'male',
+      age: 65,
+      height: 170,
+      bw: 60,
+      sbp: 110,
+      hr: 84,
+      temp: 36.8,
+      urineHourly: 50,
+      volStatus: 'hypo',
+      maintRate: 40,
+      maintFluid: 'ns',
+      labs: {
+        na: 140,
+        k: 4.0,
+        cl: 102,
+        glu: 100,
+        bun: 15,
+        cr: 0.9,
+        alb: 4.0,
+        mg: 2.0,
+        ph: 7.40,
+        paco2: 40,
+        pao2: 95,
+        hco3: 24,
+        una: 60,
+        uk: 30,
+        ucr: 80,
+        uosm: 450
+      }
+    };
+
+    // Initialize on load
+    window.onload = function() {
+      recalculateAll();
+    };
+
+    function setGender(g) {
+      state.gender = g;
+      if (g === 'male') {
+        document.getElementById('btnMale').className = "py-1 text-xs font-bold rounded bg-white shadow-sm text-blue-700";
+        document.getElementById('btnFemale').className = "py-1 text-xs font-medium rounded text-slate-600";
+      } else {
+        document.getElementById('btnFemale').className = "py-1 text-xs font-bold rounded bg-white shadow-sm text-blue-700";
+        document.getElementById('btnMale').className = "py-1 text-xs font-medium rounded text-slate-600";
+      }
+      recalculateAll();
+    }
+
+    function setBW(weight) {
+      document.getElementById('patientBW').value = weight;
+      document.querySelectorAll('.bw-preset').forEach(btn => {
+        if (btn.innerText.includes(weight + ' kg')) {
+          btn.className = "bw-preset py-1 text-xs rounded bg-blue-600 text-white font-bold";
+        } else {
+          btn.className = "bw-preset py-1 text-xs rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium";
+        }
+      });
+      recalculateAll();
+    }
+
+    function toggleDetails() {
+      const content = document.getElementById('detailsContent');
+      const icon = document.getElementById('detailChevron');
+      if (content.classList.contains('hidden')) {
+        content.classList.remove('hidden');
+        icon.classList.replace('fa-chevron-right', 'fa-chevron-down');
+      } else {
+        content.classList.add('hidden');
+        icon.classList.replace('fa-chevron-down', 'fa-chevron-right');
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMsg').innerText = msg;
+      toast.classList.remove('opacity-0');
+      toast.classList.add('opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0');
+      }, 2500);
+    }
+
+// ===== v5: 국내 유통 수액·약제 마스터 DB =====
+    const FLUID_DB = {
+      ns:      { name:'0.9% NS (중외엔에스주사액/대한생리식염주사액)', na:154, k:0, cl:154, kfree:true },
+      hs:      { name:'0.45% NS (하프셀라인)', na:77, k:0, cl:77, kfree:true },
+      d5w:     { name:'5% DW (포도당주사액)', na:0, k:0, cl:0, kfree:true },
+      d5s:     { name:'5% DS (포도당생리식염액)', na:154, k:0, cl:154, kfree:true },
+      dnk1:    { name:'5% DNK1 (포도당가칼륨나트륨주1호)', na:77, k:29.5, cl:106.5, kfree:false },
+      dnk2:    { name:'5% DNK2 (포도당가칼륨나트륨주2호)', na:77, k:20, cl:97, kfree:false },
+      dnk3:    { name:'5% DNK3 (포도당가칼륨나트륨주3호, 500mL)', na:34.2, k:20, cl:54.2, kfree:false },
+      hartmann:{ name:'하트만용액(핫솔)', na:131, k:4, cl:111, kfree:false },
+      plasmaA: { name:'플라스마솔루션에이주', na:140, k:5, cl:98, kfree:false },
+      saline3: { name:'3% NaCl (원내 조제)', na:523, k:0, cl:523, kfree:true }
+    };
+    const DRUG_DB = {
+      kclJW:  '중외염화칼륨주사액 150mg/mL(20mL/앰플) = 40mEq/앰플',
+      kclDH:  '대한염화칼륨-20 (20mL/앰플) = 20mEq/앰플',
+      nacl117:'11.7% NaCl (중외염화나트륨주사액 117mg/mL, 20mL/앰플) = 40mEq Na/앰플',
+      nahco3: '비본주(탄산수소나트륨 8.4%) (20mL/앰플) = 20mEq HCO3/앰플'
+    };
+    const KFREE_NOTE = '기본은 K-free(NS/HS/5% DW/5% DS). 참고: 최신 근거상 balanced 수액(하트만 K 4, 플라스마라이트/솔루션A K 4-5mEq/L)은 고K 환자 소생에 사용해도 K를 악화시키지 않으며, 오히려 NS 대량 투여가 고Cl성 산증으로 K를 상승시킬 수 있음(StatPearls/ALIEM/Am J Med Sci 2022). 단 원내 protocol이 K-free를 요구하면 그에 따름.';
+
+    function getUOPStatus() {
+      const mode = document.getElementById('urineMeasured') ? document.getElementById('urineMeasured').value : 'yes';
+      const value = parseFloat(document.getElementById('urinePerHour').value);
+      if (mode === 'no' || !Number.isFinite(value)) return { known:false, value:null, text:'UOP 미측정' };
+      return { known:true, value:value, text:'UOP ' + value + ' cc/hr' };
+    }
+    function withUOP(base) {
+      const u = getUOPStatus();
+      return u.known ? base + ' (UOP ' + u.value + ' cc/hr 추적)' : base + '. UOP 미측정: MAP·말초관류·의식상태·Cr 추이로 대체 평가, 가능 시 UOP 측정 시작';
+    }
+    function kclText(mEq) {
+      const jw = Math.ceil(mEq / 40);
+      const dh = Math.ceil(mEq / 20);
+      return 'KCl ' + mEq + 'mEq = 중외염화칼륨주사액(40mEq/앰플) ' + jw + '앰플 또는 대한염화칼륨-20(20mEq/앰플) ' + dh + '앰플. 반드시 희석(말초 40mEq/L 이하), 원액 IV push 절대 금지.';
+    }
+    function saline3MixText() {
+      return '조제법: 0.9% NS 500mL bag에서 100mL 제거 후 11.7% NaCl(중외염화나트륨 117mg/mL, 40mEq/20mL) 5앰플(100mL) mix → 약 523mEq/L(3.05%) 500mL. 고위험약물 이중확인.';
+    }
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark');
+      const isDark = document.body.classList.contains('dark');
+      try { localStorage.setItem('ivcare-theme', isDark ? 'dark' : 'light'); } catch(e) {}
+      document.getElementById('themeIcon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+    }
+    function setMaintRate(r) { state.maintRate = r; recalculateAll(); }
+    function setMaintFluid(f) { state.maintFluid = f; recalculateAll(); }
+    function hollidaySegar(bw) {
+      if (bw <= 10) return Math.round(bw * 100);
+      if (bw <= 20) return Math.round(1000 + (bw - 10) * 50);
+      return Math.round(1500 + (bw - 20) * 20);
+    }
+
+    const PRESETS = {
+      dka: { labs:{na:130,k:5.2,cl:94,glu:480,bun:32,cr:1.4,alb:4.0,mg:1.8,ph:7.15,paco2:24,pao2:95,hco3:8,una:40,uk:35,ucr:60,uosm:600}, sbp:95, hr:112, temp:37.4, volume:'hypo', uop:'no' },
+      hyponatremia_severe: { labs:{na:112,k:3.8,cl:80,glu:105,bun:8,cr:0.7,alb:4.1,mg:2.0,ph:7.42,paco2:38,pao2:92,hco3:24,una:75,uk:25,ucr:90,uosm:520}, sbp:130, hr:88, temp:36.8, volume:'eu', uop:'no' },
+      hyponatremia_chronic: { labs:{na:124,k:3.8,cl:92,glu:100,bun:14,cr:0.8,alb:4.0,mg:1.9,ph:7.40,paco2:40,pao2:95,hco3:24,una:60,uk:20,ucr:80,uosm:500}, sbp:118, hr:74, temp:36.7, volume:'eu', uop:'no' },
+      hypernatremia: { labs:{na:154,k:4.2,cl:118,glu:110,bun:45,cr:1.6,alb:4.0,mg:2.1,ph:7.44,paco2:38,pao2:88,hco3:25,una:18,uk:22,ucr:130,uosm:750}, sbp:100, hr:102, temp:37.8, volume:'hypo', uop:'no' },
+      hypokalemia: { labs:{na:139,k:2.3,cl:90,glu:100,bun:14,cr:0.8,alb:4.0,mg:1.5,ph:7.50,paco2:44,pao2:95,hco3:31,una:60,uk:30,ucr:80,uosm:450}, sbp:118, hr:92, temp:36.7, volume:'eu', uop:'no' },
+      hyperkalemia: { labs:{na:136,k:6.8,cl:104,glu:130,bun:55,cr:3.8,alb:3.5,mg:2.2,ph:7.28,paco2:32,pao2:94,hco3:15,una:30,uk:18,ucr:50,uosm:380}, sbp:100, hr:52, temp:36.8, volume:'hyper', uop:'no' },
+      hyperna_hyperk: { labs:{na:156,k:6.4,cl:120,glu:150,bun:48,cr:2.4,alb:3.6,mg:2.0,ph:7.30,paco2:34,pao2:90,hco3:17,una:25,uk:15,ucr:55,uosm:420}, sbp:96, hr:58, temp:37.2, volume:'hypo', uop:'no' },
+      hypochloremia: { labs:{na:136,k:3.1,cl:88,glu:95,bun:20,cr:0.9,alb:4.0,mg:1.8,ph:7.49,paco2:47,pao2:94,hco3:33,una:15,uk:25,ucr:90,uosm:500}, sbp:106, hr:96, temp:36.8, volume:'hypo', uop:'no' },
+      hyperchloremia: { labs:{na:142,k:4.1,cl:114,glu:100,bun:18,cr:1.0,alb:4.0,mg:2.0,ph:7.31,paco2:35,pao2:95,hco3:18,una:50,uk:25,ucr:70,uosm:420}, sbp:114, hr:86, temp:36.8, volume:'eu', uop:'no' },
+      sepsis: { labs:{na:135,k:4.2,cl:98,glu:140,bun:40,cr:1.8,alb:2.8,mg:1.7,ph:7.22,paco2:28,pao2:80,hco3:11,una:15,uk:20,ucr:110,uosm:500}, sbp:80, hr:125, temp:38.9, volume:'hypo', uop:'no' },
+      routine: { labs:{na:140,k:4.1,cl:102,glu:95,bun:12,cr:0.8,alb:4.2,mg:2.0,ph:7.40,paco2:40,pao2:98,hco3:24,una:60,uk:30,ucr:80,uosm:450}, sbp:120, hr:72, temp:36.5, volume:'eu', uop:'yes' }
+    };
+
+    function applyPreset(type) {
+      const p = PRESETS[type];
+      if (!p) return;
+      state.labs = Object.assign({}, p.labs);
+      document.getElementById('vitalsSBP').value = p.sbp;
+      document.getElementById('vitalsHR').value = p.hr;
+      document.getElementById('patientTemp').value = p.temp;
+      document.querySelector('input[name="volStatus"][value="' + p.volume + '"]').checked = true;
+      const uopMode = document.getElementById('urineMeasured');
+      if (uopMode) {
+        uopMode.value = p.uop || 'yes';
+        if (uopMode.value === 'no') { document.getElementById('urinePerHour').value = ''; }
+        else if (!document.getElementById('urinePerHour').value) { document.getElementById('urinePerHour').value = 50; }
+      }
+      syncLabsToUI();
+      recalculateAll();
+      showToast('프리셋 적용 완료. 필요 항목 수정 후 오더 확인.');
+    }
+
+    function resetToNormalLabs() {
+      applyPreset('routine');
+    }
+    function syncLabsToUI() {
+      document.getElementById('labNa').value = state.labs.na;
+      document.getElementById('labK').value = state.labs.k;
+      document.getElementById('labCl').value = state.labs.cl;
+      document.getElementById('labGlu').value = state.labs.glu;
+      document.getElementById('labBUN').value = state.labs.bun;
+      document.getElementById('labCr').value = state.labs.cr;
+      document.getElementById('labAlb').value = state.labs.alb;
+      document.getElementById('labMg').value = state.labs.mg;
+      document.getElementById('abgaPH').value = state.labs.ph;
+      document.getElementById('abgaPaCO2').value = state.labs.paco2;
+      document.getElementById('abgaPaO2').value = state.labs.pao2;
+      document.getElementById('abgaHCO3').value = state.labs.hco3;
+      document.getElementById('urineNa').value = state.labs.una;
+      document.getElementById('urineK').value = state.labs.uk;
+      document.getElementById('urineCr').value = state.labs.ucr;
+      document.getElementById('urineOsm').value = state.labs.uosm;
+    }
+
+    function recalculateAll() {
+      // Gather current input values
+      state.age = parseFloat(document.getElementById('patientAge').value) || 65;
+      state.height = parseFloat(document.getElementById('patientHeight').value) || 170;
+      state.bw = parseFloat(document.getElementById('patientBW').value) || 60;
+      state.sbp = parseFloat(document.getElementById('vitalsSBP').value) || 110;
+      state.hr = parseFloat(document.getElementById('vitalsHR').value) || 80;
+      state.temp = parseFloat(document.getElementById('patientTemp').value) || 36.8;
+      state.urineHourly = parseFloat(document.getElementById('urinePerHour').value);
+      
+      const volRadio = document.querySelector('input[name="volStatus"]:checked');
+      state.volStatus = volRadio ? volRadio.value : 'hypo';
+
+      state.labs.na = parseFloat(document.getElementById('labNa').value) || 140;
+      state.labs.k = parseFloat(document.getElementById('labK').value) || 4.0;
+      state.labs.cl = parseFloat(document.getElementById('labCl').value) || 102;
+      state.labs.glu = parseFloat(document.getElementById('labGlu').value) || 100;
+      state.labs.bun = parseFloat(document.getElementById('labBUN').value) || 15;
+      state.labs.cr = parseFloat(document.getElementById('labCr').value) || 0.9;
+      state.labs.alb = parseFloat(document.getElementById('labAlb').value) || 4.0;
+      state.labs.mg = parseFloat(document.getElementById('labMg').value) || 2.0;
+
+      state.labs.ph = parseFloat(document.getElementById('abgaPH').value) || 7.40;
+      state.labs.paco2 = parseFloat(document.getElementById('abgaPaCO2').value) || 40;
+      state.labs.pao2 = parseFloat(document.getElementById('abgaPaO2').value) || 95;
+      state.labs.hco3 = parseFloat(document.getElementById('abgaHCO3').value) || 24;
+
+      state.labs.una = parseFloat(document.getElementById('urineNa').value) || 40;
+      state.labs.uk = parseFloat(document.getElementById('urineK').value) || 30;
+      state.labs.ucr = parseFloat(document.getElementById('urineCr').value) || 80;
+      state.labs.uosm = parseFloat(document.getElementById('urineOsm').value) || 450;
+
+      // 1. Watson formula for Total Body Water (TBW) (수액시트 1, 2)
+      let tbw = 0;
+      if (state.gender === 'male') {
+        tbw = 2.447 + (0.3362 * state.bw) + (0.1074 * state.height) - (0.09516 * state.age);
+      } else {
+        tbw = -2.097 + (0.2466 * state.bw) + (0.1069 * state.height);
+      }
+      if (tbw <= 0 || isNaN(tbw)) {
+        tbw = state.gender === 'male' ? state.bw * 0.6 : state.bw * 0.5;
+      }
+      document.getElementById('calculatedTBW').innerText = `Watson TBW: ${tbw.toFixed(1)} L (${((tbw / state.bw) * 100).toFixed(0)}%)`;
+
+      // 2. Osmolality and Tonicity (수액시트 9, 11)
+      const calculatedPosm = (2 * state.labs.na) + (state.labs.glu / 18) + (state.labs.bun / 2.8);
+      const effectiveTonicity = (2 * state.labs.na) + (state.labs.glu / 18);
+      document.getElementById('resPosm').innerText = `${Math.round(calculatedPosm)} mOsm`;
+      document.getElementById('resTonicity').innerText = `유효: ${Math.round(effectiveTonicity)}`;
+
+      // Corrected Na for hyperglycemia (수액시트 12)
+      const correctedNa = state.labs.na + (1.6 * ((state.labs.glu - 100) / 100));
+
+      // 3. Anion Gap and Albumin correction (수액시트 26, 28)
+      const rawAG = state.labs.na - (state.labs.cl + state.labs.hco3);
+      const correctedAG = rawAG + 2.5 * (4.4 - state.labs.alb);
+      document.getElementById('resAG').innerText = rawAG.toFixed(1);
+      document.getElementById('resAGCorr').innerText = `Alb보정: ${correctedAG.toFixed(1)}`;
+
+      // 4. FENa & BUN/Cr ratio
+      let fena = 0;
+      if (state.labs.na > 0 && state.labs.cr > 0 && state.labs.ucr > 0) {
+        fena = (state.labs.una * state.labs.cr) / (state.labs.na * state.labs.ucr) * 100;
+      }
+      const bunCrRatio = state.labs.cr > 0 ? (state.labs.bun / state.labs.cr).toFixed(1) : '--';
+      document.getElementById('resFENa').innerText = `${fena.toFixed(1)}%`;
+      document.getElementById('resBUNCAT').innerText = `BUN/Cr: ${bunCrRatio}`;
+
+      // 5. Insensible Loss (수액시트 7, 8)
+      const insensible = (15 * state.bw) + (200 * Math.max(0, state.temp - 36.8));
+      const urineMeasured = document.getElementById('urineMeasured') ? document.getElementById('urineMeasured').value : 'yes';
+      document.getElementById('resInsensible').innerText = `${Math.round(insensible)} mL/day`;
+      if (urineMeasured === 'no') { document.getElementById('resBUNCAT').innerText = `BUN/Cr: ${bunCrRatio} | UOP 미측정`; }
+
+      // 6. Acid-Base Interpretation & Winters compensation
+      let acidBaseText = "Normal Acid-Base";
+      let compText = "Compensation adequate";
+      
+      if (state.labs.ph < 7.36) {
+        // Acidemia
+        if (state.labs.hco3 < 22 && state.labs.paco2 <= 42) {
+          acidBaseText = correctedAG > 14 ? "대사성 산증 (High AG Metabolic Acidosis)" : "대사성 산증 (Normal AG / Hyperchloremic)";
+          // Winters formula: Expected PaCO2 = 1.5 * HCO3 + 8 (+/- 2)
+          const expectedPaCO2 = (1.5 * state.labs.hco3) + 8;
+          if (state.labs.paco2 > expectedPaCO2 + 2) {
+            compText = `호흡성 산증 합병 (Winters: ${expectedPaCO2.toFixed(0)} < 실제 ${state.labs.paco2})`;
+          } else if (state.labs.paco2 < expectedPaCO2 - 2) {
+            compText = `호흡성 알칼리증 합병 (Winters: ${expectedPaCO2.toFixed(0)} > 실제 ${state.labs.paco2})`;
+          } else {
+            compText = `호흡성 적정 보상 (Winters 예상: ${expectedPaCO2.toFixed(0)}±2)`;
+          }
+        } else if (state.labs.paco2 > 45) {
+          acidBaseText = "호흡성 산증 (Respiratory Acidosis)";
+          compText = "신장 중탄산 보상 진행 중";
+        }
+      } else if (state.labs.ph > 7.44) {
+        // Alkalemia
+        if (state.labs.hco3 > 26) {
+          acidBaseText = "대사성 알칼리증 (Metabolic Alkalosis)";
+          // Expected PaCO2 = HCO3 + 15 (수액시트 28)
+          const expPCO2 = state.labs.hco3 + 15;
+          compText = `호흡 보상 (예상 PaCO2: ${expPCO2.toFixed(0)})`;
+        } else if (state.labs.paco2 < 35) {
+          acidBaseText = "호흡성 알칼리증 (Respiratory Alkalosis)";
+          compText = "과환기 유발";
+        }
+      }
+      document.getElementById('resAcidBase').innerText = acidBaseText;
+      document.getElementById('resComp').innerText = compText;
+
+      // 7. TTKG (Transtubular K Gradient) (수액시트 19, 20)
+      let ttkg = 0;
+      if (state.labs.k > 0 && state.labs.uosm > calculatedPosm && calculatedPosm > 0) {
+        ttkg = (state.labs.uk * calculatedPosm) / (state.labs.k * state.labs.uosm);
+        document.getElementById('resTTKG').innerText = `TTKG: ${ttkg.toFixed(1)} (${ttkg > 8 ? '알도스테론 항진/신성손실' : ttkg < 3 ? '적절 신장보존' : '정상범위'})`;
+      } else {
+        document.getElementById('resTTKG').innerText = `TTKG: 계산조건 미달 (Uosm > Posm 필요)`;
+      }
+
+      // 8. Generate Prescriptions based on Clinical Priority
+      generateClinicalOrders(tbw, correctedNa, correctedAG, fena, insensible);
+    }
+
+
+    // ===== v5: 복합 장애 탐지 + 우선순위 =====
+    // 우선순위: 1 고K응급 → 2 증상성 저Na → 3 쇼크 → 4 DKA/HHS → 5 고Na → 6 저K → 7 경증저Na → 8 Cl장애
+    function detectDisorders() {
+      const L = state.labs, d = [];
+      if (L.k >= 6.0) d.push({ key:'hyperK', pri:1, severe:(L.k >= 6.5) });
+      if (L.k >= 5.5 && L.k < 6.0) d.push({ key:'hyperKMod', pri:6.5 });
+      if (L.na < 125) d.push({ key:'hypoNaSevere', pri:2 });
+      if (state.sbp < 90) d.push({ key:'shock', pri:3 });
+      if (L.glu >= 300 && (L.ph < 7.30 || L.hco3 < 15)) d.push({ key:'dka', pri:4 });
+      if (L.na >= 148) d.push({ key:'hyperNa', pri:5 });
+      if (L.k < 3.5) d.push({ key:'hypoK', pri:6, severe:(L.k < 2.5) });
+      if (L.na >= 125 && L.na < 135) d.push({ key:'hypoNaMild', pri:7 });
+      if (L.cl < 95 && L.hco3 > 26) d.push({ key:'hypoClAlk', pri:8 });
+      if (L.cl > 110 && L.hco3 < 22) d.push({ key:'hyperClAcid', pri:8 });
+      // v7.1: 쇼크 + K≥5.5 병존 시 통합 모듈로 대체 (두 치료 동시 진행)
+      const hasHK = d.some(x => x.key === 'hyperK');
+      const hasHKm = d.some(x => x.key === 'hyperKMod');
+      const hasShock = d.some(x => x.key === 'shock');
+      if (hasShock && (hasHK || hasHKm)) {
+        const rest = d.filter(x => x.key !== 'hyperK' && x.key !== 'shock' && x.key !== 'hyperKMod');
+        rest.push({ key:'hyperK_shock', pri:0.5 });
+        return rest.sort((a, b) => a.pri - b.pri);
+      }
+      return d.sort((a, b) => a.pri - b.pri);
+    }
+
+    // 각 장애 모듈: stage1(즉시/초기), stage2(유지/잔여), co(특수중재), nextLab 반환
+    const MODULES = {
+      hyperK(ctx) {
+        const L = state.labs;
+        const renalBad = L.cr >= 2.0 || !getUOPStatus().known;
+        const riDose = (renalBad || L.glu > 250) ? 5 : 10;
+        return {
+          label:'고칼륨혈증 (K ' + L.k + ')', color:'rose',
+          urgent:{ title:'긴급 고칼륨혈증: K ' + L.k + ' mEq/L', desc:'ECG 즉시 확인. 칼슘으로 심근 안정화 → insulin+glucose 세포내 이동 → K 제거 순서. K 포함 수액·첨가제 금지.', icon:'fa-heart-crack' },
+          stage1:{
+            fluid:'대한/중외 글루콘산칼슘주사액 10% 20-30mL IV',
+            additive:'5-10분 slow IV (UKKA 2023: 30mL/10분). 10분 후 ECG 미호전 시 반복 가능. K 수치 자체는 낮추지 않음(막 안정화).',
+            rate:'STAT slow IV push (5-10분)',
+            duration:'즉시, ECG 반응 보며 반복 여부 결정',
+            endpoint:'ECG 이상(peaked T, QRS widening) 호전·부정맥 소실'
+          },
+          stage2:{
+            fluid:'K-free 수액: ' + (state.volStatus === 'hypo' ? FLUID_DB.ns.name : (state.labs.glu > 200 ? FLUID_DB.hs.name : FLUID_DB.d5s.name)),
+            comp:KFREE_NOTE,
+            rate: state.volStatus === 'hypo' ? '혈역학 회복 목표로 125-250 cc/hr, 반응 보며 감량' : '40-80 cc/hr (최소 필요량, 체액과다 주의)',
+            total:'I/O·폐울혈 보며 개별화',
+            endpoint:withUOP('K < 5.5 mEq/L 및 ECG 안정화 확인까지')
+          },
+          co:'<div class="p-2 bg-white rounded border border-purple-200"><strong class="text-purple-900 block text-xs">① Insulin + Glucose (세포내 이동):</strong><p class="mt-0.5">휴물린R(100IU/mL) Regular insulin ' + riDose + 'U IV + 포도당 25g IV (50% D/W 병 제형 우선, 없으면 20% 포도당 20mL×6앰플=24g). 15-30분 내 발현, K 0.5-1.0 하강. 혈당 30분·60분·이후 매시간 4-6시간 추적(저혈당 주의).' + (riDose === 5 ? ' 신기능 저하/고혈당으로 RI 5U로 감량.' : '') + '</p></div>' +
+             '<div class="p-2 bg-white rounded border border-purple-200 mt-2"><strong class="text-purple-900 block text-xs">② K 체외 제거:</strong><p class="mt-0.5">배뇨 있으면 라식스주 20mg/2mL 2-4앰플(40-80mg) IV. 경구 가능 시 카리메트 25g 1포 PO 또는 로켈마 10g TID. ' + (L.cr >= 3.0 || !getUOPStatus().known ? 'Cr ' + L.cr + '/UOP 미측정 — 무뇨·불응 시 응급 혈액투석(HD) 신장내과 상담.' : '불응 시 HD 고려.') + '</p></div>' +
+             (L.hco3 < 22 && L.ph < 7.35 ? '<div class="p-2 bg-white rounded border border-purple-200 mt-2"><strong class="text-purple-900 block text-xs">③ 산증 동반:</strong><p class="mt-0.5">비본(NaHCO3)은 고K 보조 목적으로 예외적 고려 가능(단, 산증 교정 목적 자체로는 pH&lt;6.9 또는 CPR 시에만 제한적).</p></div>' : ''),
+          nextLab:'K·BST 처치 후 1시간, 2시간 재검. 이후 K 2-4시간 간격, ECG 지속 모니터링'
+        };
+      },
+
+      hypoNaSevere(ctx) {
+        const L = state.labs;
+        const deltaPerL = (523 - L.na) / (ctx.tbw + 1);
+        const hypoK = L.k < 3.5;
+        const cap = hypoK ? 6 : 8;
+        return {
+          label:'중증 저나트륨혈증 (Na ' + L.na + ')', color:'purple',
+          urgent:{ title:'중증 저나트륨혈증: Na ' + L.na + ' mEq/L', desc:'경련·의식저하 등 신경증상 있으면 즉시 3% NaCl bolus. 24시간 교정 상한 ≤' + cap + 'mEq/L' + (hypoK ? ' (동반 저K = ODS 위험인자, 상한 하향)' : ' (ODS 위험 시 ≤6)') + '.', icon:'fa-brain' },
+          stage1:{
+            fluid:'3% NaCl 100-150mL IV bolus',
+            additive:saline3MixText() + ' 1L 주입 시 예상 Na 상승 ≈ ' + deltaPerL.toFixed(1) + ' mEq/L (Adrogue-Madias).',
+            rate:'10-20분에 걸쳐 bolus, 증상 지속 시 최대 3회(총 450mL까지)',
+            duration:'bolus마다 증상·Na 재평가',
+            endpoint:'신경증상 호전 또는 Na 4-6 mEq/L 상승 시 즉시 bolus 중단'
+          },
+          stage2:{
+            fluid: state.volStatus === 'hypo' ? FLUID_DB.ns.name + ' (유효순환혈장량 교정)' : (state.volStatus === 'hyper' ? '수분제한 800-1,000mL/day ± 라식스' : '수분제한 800-1,000mL/day (SIADH 등)'),
+            comp: hypoK ? 'K 동시 보충 필요 — K 보충량(mEq)을 Na 상승 예산에 합산할 것 ((Na+K)/TBW).' : '과교정 시 5% DW + DDAVP 1-2µg 상급자 상의.',
+            rate: state.volStatus === 'hypo' ? '60-100 cc/hr에서 시작, Na 2-4시간 추적하며 조정' : '수분제한. 라인 유지 필요 시 KVO 10-20 cc/hr',
+            total:'24시간 Na 상승 ≤' + cap + ' mEq/L 엄수',
+            endpoint:'24h 상승 상한 내 유지. Na ≥ 125-130 도달 후 원인 치료로 전환'
+          },
+          co:'<div class="p-2 bg-white rounded border border-indigo-200"><strong class="text-indigo-900 block text-xs">CPM(ODS) 방지:</strong><p class="mt-0.5">시간당 Na 상승 ≤0.5 mEq/L, 24시간 ≤' + cap + ' mEq/L. 과교정 의심 시 즉시 3% NaCl 중단하고 5% DW 투여 ± DDAVP 검토. ' + (hypoK ? '<strong>동반 저K:</strong> KCl 보충이 Na를 추가 상승시키므로 상한 관리 더 엄격히.' : '') + '</p></div>',
+          nextLab:'3% NaCl 시작 후 Na 2시간마다, 안정화 후 4-6시간마다. 신경상태·I/O 동시 기록'
+        };
+      },
+
+      shock(ctx) {
+        const L = state.labs;
+        const plasmaAok = L.k < 5.5 && L.na < 150 && L.cl <= 110;
+        const fluidName = plasmaAok ? FLUID_DB.plasmaA.name : FLUID_DB.ns.name;
+        const caution = !plasmaAok ? ('플라스마솔루션A는 ' + (L.k >= 5.5 ? 'K 5mEq/L 함유로 고K혈증 시 금지' : '고Na/고Cl 위험 시 사용 피함(허가사항)') + ' → NS로 대체. ') : 'NS 대비 고염소성 산증 위험 낮음. ';
+        return {
+          label:'저혈량/쇼크 (SBP ' + state.sbp + ')', color:'red',
+          urgent:{ title:'저혈량성/패혈성 쇼크: SBP ' + state.sbp + ' mmHg', desc:'혈압 단일 수치보다 MAP·말초관류·의식·lactate 반복 평가. 삼투압 교정속도 제한보다 순환량 회복이 우선.', icon:'fa-truck-medical' },
+          stage1:{
+            fluid: fluidName + ' 500mL bolus',
+            additive: caution + '심부전·CKD·고령이면 250mL bolus 후 재평가.',
+            rate:'500mL를 15-30분 내 급속 (가압백 가능)',
+            duration:'각 bolus 후 vital·폐청진·SpO2 재평가하며 반복',
+            endpoint:withUOP('MAP ≥ 65 mmHg, 말초관류·의식 호전, 폐울혈 없음')
+          },
+          stage2:{
+            fluid: fluidName + ' → 반응 따라 감량',
+            comp:'출혈·패혈증·심인성 등 원인 동시 평가. MAP < 65 지속 시 norepinephrine 중심정맥 고려(상급자).',
+            rate:'60-100 cc/hr부터 시작, 재평가 기반 조정',
+            total:'필요량만 (과다 수액 주의)',
+            endpoint:'순환 안정 후 유지 단계로 전환'
+          },
+          co:'',
+          nextLab:'각 bolus 후 vital 재평가. Lactate·Cr·전해질·ABGA 필요 시 반복'
+        };
+      },
+
+      dka(ctx) {
+        const L = state.labs;
+        const kHold = L.k < 3.3;
+        const kAdd = L.k >= 3.3 && L.k < 5.3;
+        return {
+          label:'DKA / HHS (Glu ' + L.glu + ', pH ' + L.ph + ')', color:'amber',
+          urgent:{ title:'DKA/HHS 프로토콜: Glu ' + L.glu + ', pH ' + L.ph + ', HCO3 ' + L.hco3, desc:'수분 → insulin → K 순서. 보정 Na = ' + ctx.correctedNa.toFixed(1) + ' (고혈당 보정). AG 추적 필수.', icon:'fa-fire-flame-curved' },
+          stage1:{
+            fluid: FLUID_DB.ns.name + ' 1,000mL',
+            additive: kHold ? 'K ' + L.k + ' < 3.3: insulin 보류하고 KCl 먼저 보충 (' + kclText(40) + ')' : (kAdd ? 'K 3.3-5.3: 수액 1L당 KCl 20-30mEq 첨가 (' + kclText(20) + ')' : 'K ≥ 5.3: KCl 첨가 보류, 2시간마다 K 추적'),
+            rate:'15-20 mL/kg/hr (이 환자 약 ' + Math.round(state.bw * 15) + '-' + Math.round(state.bw * 20) + ' cc/hr), 심부전·CKD면 감량',
+            duration:'초기 1시간, 이후 혈역학·보정 Na로 수액 변경',
+            endpoint:withUOP('혈역학 안정, 관류 회복. 보정 Na·혈당으로 다음 수액 결정')
+          },
+          stage2:{
+            fluid: (ctx.correctedNa >= 140 ? FLUID_DB.hs.name : FLUID_DB.ns.name) + ' → 혈당 ≤ 250 도달 시 5% DS 또는 D5 1/2NS로 전환',
+            comp:'AG 닫힐 때까지 insulin 유지, 혈당 150-200 목표. ketone 소실 확인.',
+            rate:'250-500 cc/hr에서 심폐·신기능·I/O 따라 조정',
+            total:'첫 24시간 결핍량 4-6L 범위 내 개별화',
+            endpoint:'AG 정상화, ketone 소실, Glu 150-200 유지'
+          },
+          co:'<div class="p-2 bg-white rounded border border-amber-200"><strong class="text-amber-900 block text-xs">① Insulin 지속주입:</strong><p class="mt-0.5">' + (kHold ? 'K < 3.3 — insulin 보류, KCl 선보충 후 시작.' : '휴물린R 100IU를 0.9% NS 총 100mL에 mix (1IU/mL) → 0.1U/kg/hr = ' + (state.bw * 0.1).toFixed(1) + ' mL/hr. 원내 인슐린 프로토콜 우선.') + '</p></div>' +
+             '<div class="p-2 bg-white rounded border border-amber-200 mt-2"><strong class="text-amber-900 block text-xs">② K 관리:</strong><p class="mt-0.5">insulin은 K를 세포 내로 이동시킴. K < 5.3이고 배뇨 확인되면 매 L당 KCl 20-30mEq 유지. UOP 미측정이면 배뇨 확인 전 K 첨가 보류.</p></div>',
+          nextLab:'BST 매시간. 전해질·venous pH·AG 2-4시간마다. K < 3.3 시 insulin 즉시 보류'
+        };
+      },
+
+      hyperNa(ctx) {
+        const L = state.labs;
+        const fwd = ctx.tbw * (L.na / 140 - 1);
+        const day1Rate = Math.round((fwd * 500 + ctx.insensible) / 24);
+        const shockNow = state.sbp < 90;
+        return {
+          label:'고나트륨혈증 (Na ' + L.na + ')', color:'sky',
+          urgent:{ title:'고나트륨혈증: Na ' + L.na + ' mEq/L', desc:'Free water deficit 약 ' + fwd.toFixed(1) + ' L. 만성/기간 불명은 24시간 Na 하강 ≤10 mEq/L, 시간당 ≤0.5 mEq/L (급격 교정 시 뇌부종).', icon:'fa-water' },
+          stage1:{
+            fluid: shockNow ? FLUID_DB.ns.name + ' 500-1,000mL (저혈압 우선 교정)' : FLUID_DB.d5w.name + ' 또는 ' + FLUID_DB.hs.name,
+            additive: shockNow ? '혈역학 안정 후 free water 교정으로 전환.' : 'D5W는 100% free water, HS는 절반. 혈당 상승 주의.',
+            rate: shockNow ? 'bolus 후 재평가' : day1Rate + ' cc/hr (결핍 1/2 + 불감손실을 24시간에 분할)',
+            duration: shockNow ? 'MAP 회복까지' : '24시간 균등 주입',
+            endpoint:'Na 하강 ≤0.5 mEq/L/hr, ≤10 mEq/L/24hr'
+          },
+          stage2:{
+            fluid:'잔여 결핍 ' + Math.round(fwd * 500) + ' mL를 다음 24-48시간에 분할 (D5W/HS/경구 물)',
+            comp:'지속 소실(설사·다뇨·발열) 별도 추가. 심부전·CKD는 속도 보수적으로.',
+            rate: Math.round(day1Rate * 0.8) + ' cc/hr부터 반응 보며 재계산',
+            total:'잔여 FWD + ongoing loss',
+            endpoint:withUOP('Na 140-145 범위로 안전 접근')
+          },
+          co:'',
+          nextLab:'Na 4시간마다 초기 추적. 하강 속도 > 1 mEq/L/hr이면 즉시 감속'
+        };
+      },
+
+      hypoK(ctx) {
+        const L = state.labs;
+        const severe = L.k < 2.5;
+        const dose = severe ? 40 : 20;
+        const bagMl = 500;
+        const rateCc = severe ? 250 : 125;
+        const meqPerHr = Math.round(dose / (bagMl / rateCc));
+        return {
+          label:(severe ? '중증 저칼륨혈증' : '저칼륨혈증') + ' (K ' + L.k + ')', color:'amber',
+          urgent: severe ? { title:'중증 저칼륨혈증: K ' + L.k + ' — 부정맥·근무력 위험', desc:'중심정맥 + ECG 모니터링 하 고농도 보충 검토. Mg 동반 결핍 확인.', icon:'fa-heart-pulse' } : null,
+          stage1:{
+            fluid: FLUID_DB.ns.name + ' ' + bagMl + 'mL + KCl ' + dose + 'mEq',
+            additive: kclText(dose) + ' 최종농도 ' + Math.round(dose / (bagMl / 1000)) + 'mEq/L' + (severe ? ' (말초 40mEq/L 초과 — 중심정맥·모니터링 필요)' : ' (말초 가능)'),
+            rate: rateCc + ' cc/hr (K ' + meqPerHr + ' mEq/hr)',
+            duration: Math.round(bagMl / rateCc) + '시간 주입 후 K 재검',
+            endpoint:'K ≥ 3.5, ECG 이상·증상 호전'
+          },
+          stage2:{
+            fluid:'재검 후 추가 필요량만큼 동일 방식 분할 보충. 경구 가능 시 KCl 서방정 PO 병행',
+            comp: L.mg < 1.8 ? 'Mg ' + L.mg + ' 낮음: MgSO4 1-2g IV 병행 고려 (Mg 결핍 시 K 교정 불응).' : 'Mg 동반결핍 재확인.',
+            rate:'K 재검 결과 기반',
+            total: severe ? '1일 총량 신기능 고려 (통상 ≤120-200 mEq/day, 중심정맥·모니터링下)' : '20-40mEq 단위 반복',
+            endpoint:withUOP('K 3.5-5.0 안전범위 유지, 과보충 없음')
+          },
+          co:'',
+          nextLab: severe ? 'K/Mg 1-2시간 후 재검, telemetry 권장' : 'K/Mg 2-4시간 후 재검. 말초 라인 통증·정맥염 확인'
+        };
+      },
+
+      hypoNaMild(ctx) {
+        const L = state.labs;
+        const hypoK = L.k < 3.5;
+        const cap = hypoK ? 6 : 8;
+        return {
+          label:'경증 저나트륨혈증 (Na ' + L.na + ')', color:'indigo',
+          urgent:null,
+          stage1:{
+            fluid: state.volStatus === 'hypo' ? FLUID_DB.ns.name : (state.volStatus === 'hyper' ? '수분제한 + 이뇨제 평가' : '수분제한 1,000mL/day (SIADH 양상)'),
+            additive:'원인 평가(저혈량/SIADH/이뇨제/갑상선·부신) 우선. Uosm ' + L.uosm + ', U-Na ' + L.una + ' 참고.',
+            rate: state.volStatus === 'hypo' ? '60-100 cc/hr, Na 추적하며 조정' : '수분제한',
+            duration:'24시간 Na 상승 ≤' + cap + ' mEq/L 목표',
+            endpoint:'원인 교정 + Na 안정 상승'
+          },
+          stage2:{
+            fluid:'반응 따라 유지/조정',
+            comp: hypoK ? '동반 저K 보충량을 Na 교정 예산에 합산.' : '',
+            rate:'개별화', total:'개별화',
+            endpoint:'24h 상승 ≤' + cap + ' mEq/L'
+          },
+          co:'',
+          nextLab:'Na 4-6시간 후 재검'
+        };
+      },
+
+      hypoClAlk(ctx) {
+        const L = state.labs;
+        const withK = L.k < 3.5;
+        return {
+          label:'저염소성 대사성 알칼리증 (Cl ' + L.cl + ', HCO3 ' + L.hco3 + ')', color:'cyan',
+          urgent:null,
+          stage1:{
+            fluid: FLUID_DB.ns.name + ' 500-1,000mL',
+            additive: withK ? '동반 저K → ' + kclText(20) : 'K/Mg 확인 후 필요 시 보충.',
+            rate:'75-125 cc/hr (심기능·volume status 따라)',
+            duration:'4-6시간 후 전해질·ABGA 재평가',
+            endpoint:withUOP('Cl 상승, HCO3·pH 호전, 구토/NG 손실 교정')
+          },
+          stage2:{
+            fluid:'원인(구토·NG·이뇨제) 교정 후 유지 최소화',
+            comp:'부종·고알도스테론 의심 시 NS 반응 제한적 — 원인 치료 우선.',
+            rate:'반응 기반 감량', total:'개별화',
+            endpoint:'대사성 알칼리증 호전'
+          },
+          co:'',
+          nextLab:'전해질(Mg 포함)·ABGA 4-6시간 후. 구토/NG output 기록'
+        };
+      },
+
+      hyperClAcid(ctx) {
+        const L = state.labs;
+        const bd = Math.round(0.2 * state.bw * (24 - L.hco3));
+        return {
+          label:'고염소성 대사성 산증 (Cl ' + L.cl + ', HCO3 ' + L.hco3 + ')', color:'teal',
+          urgent:null,
+          stage1:{
+            fluid:'진행 중 0.9% NS 감량/중단 → HS 또는 5% DW 기반으로 전환',
+            additive:'플라스마솔루션A는 고Cl 위험 시 사용 피함(허가사항). 설사·RTA·AKI 등 원인 확인.',
+            rate:'체액상태 기반 개별 처방',
+            duration:'4-6시간 후 Cl·ABGA 재평가',
+            endpoint:'Cl 감소, HCO3·pH 호전'
+          },
+          stage2:{
+            fluid: (L.ph < 7.2 ? '중증 산증: 비본주(탄산수소나트륨 8.4%) 20mL(20mEq/앰플) — 필요량 ≈ base deficit ' + bd + 'mEq (0.2×체중×(24-HCO3)), 절반 먼저 투여 후 재평가' : 'HCO3 보충 없이 원인 치료·경과 관찰'),
+            comp:'HCO3 투여 시 K 세포내 이동 → K 추적.',
+            rate:'원내 bicarbonate 프로토콜 우선', total:'ABGA 기반 재계산',
+            endpoint:'산증 원인 교정 및 pH ≥ 7.30'
+          },
+          co:'',
+          nextLab:'전해질·ABGA 4-6시간 후. NS 누적 투여량 확인'
+        };
+      }
+    };
+
+    // ===== v7.1: 패혈증 쇼크 + 고칼륨혈증(K≥5.5) 동시 처치 모듈 =====
+    // 근거: UKKA 2023(저혈량 시 NS expansion과 고K 처치 병행, Ca gluconate 30mL/10분),
+    //       Surviving Sepsis(balanced crystalloid 30mL/kg), StatPearls/ALIEM(LR·PlasmaLyte는 고K에서도 안전)
+    MODULES.hyperK_shock = function(ctx) {
+      const L = state.labs;
+      const severe = L.k >= 6.0;
+      const ecgRisk = L.k >= 6.5;
+      const acidotic = L.hco3 < 17 || L.ph < 7.20;
+      return {
+        label:'패혈증/쇼크 + 고칼륨혈증 동시 처치 (K ' + L.k + ', SBP ' + state.sbp + ')', color:'rose',
+        urgent:{ title:'쇼크 + 고K(K ' + L.k + ') 병존 — 두 치료를 별도 라인으로 동시 진행',
+                 desc: severe ? '수액 소생을 위해 고K 처치를 미루거나, 고K를 위해 소생을 미루지 않음. UKKA: 저혈량은 NS expansion하면서 고K 단계적 처치 병행.'
+                              : 'K 5.5-5.9 중등도: 소생은 K-free 수액으로 진행하면서 K 추적·제거 병행. 칼슘/insulin은 K≥6.0 또는 ECG 변화 시 시작.',
+                 icon:'fa-heart-circle-exclamation' },
+        stage1:{
+          fluid: severe
+            ? 'Line A: 0.9% NS 500mL bolus  +  Line B: 글루콘산칼슘 10% 20-30mL IV'
+            : 'Line A: 0.9% NS 500mL bolus (K-free)',
+          additive:'Line A(수액): K-free NS 기본. 단 근거상 하트만/플라스마라이트(K 4-5)도 고K 소생에 안전하며 NS 대량은 고Cl성 산증으로 K 악화 가능 — 원내 protocol 우선. ' +
+            (severe ? 'Line B(고K): ' + (ecgRisk ? 'K≥6.5 또는 ECG 변화 시 즉시' : 'K≥6.0 — ECG 확인 후 투여') + ', 5-10분 slow IV, 10분 후 미호전 시 반복.'
+                    : 'K 5.5-5.9: 칼슘 불필요. ECG 확인, K 4-6시간 후 재검. 상승·K≥6.0·ECG 변화 시 즉시 severe 단계로 escalation.'),
+          rate:'Line A: 500mL/15-30분 (가압백 가능)' + (severe ? ' · Line B: 5-10분 slow IV' : ''),
+          duration:'각 bolus·투여 후 vital + ECG 동시 재평가',
+          endpoint:withUOP(severe ? 'MAP ≥ 65 mmHg와 ECG 안정화를 동시 달성' : 'MAP ≥ 65 mmHg 달성 + K 상승 없음 확인')
+        },
+        stage2:{
+          fluid: severe
+            ? 'K-free 유지(HS 또는 5% DS) 40-80 cc/hr + 휴물린R 10U IV + 포도당 25g IV'
+            : 'K-free 유지(HS 또는 5% DS) 40-80 cc/hr. insulin+glucose는 K≥6.0 또는 상승 추이 시 시작',
+          comp: (severe ? 'insulin+glucose 후 혈당<126mg/dL이면 10% DW 5시간 유지(저혈당 예방, UKKA). ' : '현 단계에서 insulin 불필요. ') +
+            'K 제거: 배뇨 확인되면 라식스 40-80mg IV, 카리메트 25g PO 또는 로켈마 10g TID, 무뇨·불응 시 응급 HD 상담.' +
+            (acidotic ? ' 산증 동반(HCO3 ' + L.hco3 + '): 비본(NaHCO3)은 pH<6.9 또는 CPR 시에만 제한적 — 산-염기 카드 참조.' : ''),
+          rate: severe ? 'insulin+glucose 15-30분 내 투여, 유지수액은 반응 따라 titration' : '유지수액 반응 따라 titration',
+          total:'초기 소생 ~30mL/kg 범위 내, 이후 제한적 유지(패혈증 지침: 양의 fluid balance 회피)',
+          endpoint: severe ? 'K < 5.5 mEq/L + 혈역학 안정 + lactate 감소 추이' : 'K < 5.5 유지 + 혈역학 안정 + lactate 감소 추이'
+        },
+        co:'<div class="p-2 bg-white rounded border border-rose-200"><strong class="text-rose-900 block text-xs">승압제:</strong><p class="mt-0.5">수액 500-1,000mL 중에도 MAP < 65 지속 시 norepinephrine 중심정맥 주입(0.05-0.2 µg/kg/min부터) — 수액과 동시 진행, 상급자 상의.</p></div>',
+        nextLab: severe ? 'K·BST 처치 후 1시간, 이후 4·6·24시간(UKKA). lactate·ABGA 반복, 혈액배양 후 항생제 1시간 내 투여(패혈증 지침)'
+                        : 'K 4-6시간 후 재검(상승 시 severe 프로토콜로 escalation). lactate·ABGA 반복, 혈액배양 후 항생제 1시간 내 투여(패혈증 지침)'
+      };
+    };
+
+    // ===== v7.1: 중등도 고칼륨혈증 (K 5.5-5.9) =====
+    MODULES.hyperKMod = function(ctx) {
+      const L = state.labs;
+      return {
+        label:'중등도 고칼륨혈증 (K ' + L.k + ', 5.5-5.9)', color:'orange',
+        urgent:null,
+        stage1:{
+          fluid:'K-free 수액으로 유지·교정 (' + FLUID_DB.ns.name + ' 또는 ' + FLUID_DB.hs.name + ')',
+          additive:'칼슘·insulin은 아직 불필요 — K≥6.0 또는 ECG 변화 시 시작. K 포함 수액(DNK1-3·하트만·플라스마솔루션A) 회피. K 상승 약제(ACEi/ARB, K-sparing, NSAID, TMP-SMX, BB) 중단 검토.',
+          rate:'체액상태 따라 40-80 cc/hr',
+          duration:'4-6시간 후 K 재검',
+          endpoint:'K < 5.5 및 상승 추이 멈춤'
+        },
+        stage2:{
+          fluid:'K 지속·상승 시 카리메트 25g PO 또는 로켈마 10g TID ± 라식스(배뇨 확인 시)',
+          comp:KFREE_NOTE,
+          rate:'재검 결과 기반',
+          total:'개별화',
+          endpoint:'K 정상 범위 복귀 및 원인 교정'
+        },
+        co:'',
+        nextLab:'K 4-6시간 후 재검. 상승 시 즉시 K≥6.0 프로토콜(severe)로 escalation'
+      };
+    };
+
+
+
+    // ===== v5: 상호작용 경고 =====
+    function buildInteractionWarnings(list) {
+      const has = (k) => list.some(x => x.key === k);
+      const w = [];
+      if ((has('hypoNaSevere') || has('hypoNaMild')) && has('hypoK'))
+        w.push('저Na+저K 동반: K 보충 1mEq는 Na 1mEq와 동등하게 삼투압 상승에 기여 ((Na+K)/TBW). KCl 투여량을 Na 교정 예산에 합산하고, 저K는 ODS 위험인자이므로 24시간 Na 상승 상한을 6-8mEq/L로 하향. 무증상 저Na라면 K를 먼저 교정 권고.');
+      if (has('hyperK') && has('hyperNa'))
+        w.push('고K+고Na 동반: 고K 응급처치(Ca → insulin+glucose → 제거)를 먼저 완료한 뒤 free water 교정(D5W/HS) 시작. insulin+glucose와 D5W가 겹치면 혈당 급변하므로 BST 강화.');
+      if ((has('hypoNaSevere') || has('hypoNaMild')) && has('hyperK'))
+        w.push('저Na+고K 동반: 3% NaCl·NS·HS는 K-free라 사용 가능. 플라스마솔루션A(K 5)·하트만(K 4)·DNK1-3(K 20-29.5) 금지.');
+      if (has('dka') && has('hyperK'))
+        w.push('DKA+고K: K≥3.3이면 insulin 시작하되 K≥5.3이면 수액 내 KCl 첨가 보류. K<3.3이면 insulin 보류하고 KCl 먼저.');
+      if (has('hypoK') && state.labs.hco3 < 22 && state.labs.ph < 7.35)
+        w.push('산증 교정(HCO3) + 저K: HCO3 투여 시 K가 세포 내로 이동해 저K 악화 가능. K 선보충 또는 동시 보충 고려.');
+      if (has('shock') && (has('hypoNaSevere') || has('hypoNaMild') || has('hyperNa')))
+        w.push('쇼크 + Na 이상: 순환량 회복이 Na 교정속도 제한보다 우선. 혈역학 안정 후 삼투압 교정 속도 규칙 적용.');
+      if (has('hyperClAcid') && has('hypoK'))
+        w.push('고Cl성 산증+저K: NS 재투여 피하고 KCl 농도·속도 상한 준수.');
+      return w;
+    }
+
+    const COBOX_CLASS = 'border-l-4 border-purple-500 bg-purple-50/40 p-3.5 rounded-r-xl border border-t-0 border-b-0 border-r-0';
+    const S1_CLASS = 'border-l-4 border-rose-500 bg-rose-50/40 p-3.5 rounded-r-xl border border-t-0 border-b-0 border-r-0';
+    const S1_CLASS_MAINT = 'border-l-4 border-teal-500 bg-teal-50/40 p-3.5 rounded-r-xl border border-t-0 border-b-0 border-r-0';
+
+    function fillStage(m) {
+      document.getElementById('stage1Fluid').innerText = m.stage1.fluid;
+      document.getElementById('stage1Additive').innerHTML = m.stage1.additive || '';
+      document.getElementById('stage1RateDetail').innerText = m.stage1.rate;
+      document.getElementById('stage1SpeedBadge').innerText = m.stage1.rate;
+      document.getElementById('stage1Duration').innerText = m.stage1.duration;
+      document.getElementById('stage1Endpoint').innerText = m.stage1.endpoint;
+      document.getElementById('stage2Fluid').innerText = m.stage2.fluid;
+      document.getElementById('stage2Composition').innerText = m.stage2.comp || '';
+      document.getElementById('stage2RateDetail').innerText = m.stage2.rate;
+      document.getElementById('stage2SpeedBadge').innerText = m.stage2.rate;
+      document.getElementById('stage2TotalDaily').innerText = m.stage2.total;
+      document.getElementById('stage2Endpoint').innerText = m.stage2.endpoint;
+    }
+
+    function renderAdditionalBlock(m) {
+      return '<div class="add-card"><h4>병행 교정: ' + m.label + '</h4><dl class="spec">' +
+        '<dt>수액/약제</dt><dd>' + m.stage1.fluid + (m.stage1.additive ? ' — ' + m.stage1.additive : '') + '</dd>' +
+        '<dt>속도</dt><dd>' + m.stage1.rate + '</dd>' +
+        '<dt>총량/기간</dt><dd>' + m.stage1.duration + '</dd>' +
+        '<dt>Endpoint</dt><dd>' + m.stage1.endpoint + '</dd>' +
+        (m.stage2 && m.stage2.fluid ? '<dt>이후 유지</dt><dd>' + m.stage2.fluid + ' | ' + m.stage2.rate + ' | ' + m.stage2.total + ' | ' + m.stage2.endpoint + '</dd>' : '') +
+        '</dl></div>';
+    }
+
+    function renderMaintenance(insensible) {
+      const daily = hollidaySegar(state.bw);
+      const guideRate = Math.round(daily / 24);
+      const rate = state.maintRate || 40;
+      const fkey = state.maintFluid || 'ns';
+      const fname = FLUID_DB[fkey].name;
+
+      document.getElementById('stage1Card').className = S1_CLASS_MAINT;
+      document.getElementById('stage1Title').innerHTML = '<span id="stage1Num" class="w-5 h-5 rounded-full bg-teal-600 text-white flex items-center justify-center text-[10px] mr-1.5">M</span>유지수액 처방 (Maintenance, 단일 처방)';
+      document.getElementById('stage2Card').classList.add('hidden');
+
+      const chips = [20, 40, 60].map(r =>
+        '<button type="button" class="rate-chip' + (rate === r ? ' active' : '') + '" onclick="setMaintRate(' + r + ')">' + r + ' cc/hr</button>'
+      ).join(' ');
+      const fchips =
+        '<button type="button" class="fluid-chip' + (fkey === 'ns' ? ' active' : '') + '" onclick="setMaintFluid(\'ns\')">0.9% NS</button> ' +
+        '<button type="button" class="fluid-chip' + (fkey === 'd5s' ? ' active' : '') + '" onclick="setMaintFluid(\'d5s\')">5% DS</button>';
+
+      document.getElementById('stage1Fluid').innerText = fname + ' 500mL 또는 1,000mL';
+      document.getElementById('stage1Additive').innerHTML =
+        '<span class="block mb-1.5">' + fchips + '</span><span class="block">' + chips + '</span>' +
+        '<span class="block mt-2 text-slate-500">참고(가이드라인 계산): Holliday-Segar 필요량 약 ' + daily.toLocaleString() + ' mL/day (≈' + guideRate + ' cc/hr). 발열 시 1℃당 불감손실 +12%. 실제 유지처방은 심부전·CKD·고령 고려해 20-60 cc/hr 범위가 흔함.</span>';
+      document.getElementById('stage1RateDetail').innerText = rate + ' cc/hr';
+      document.getElementById('stage1SpeedBadge').innerText = rate + ' cc/hr';
+      document.getElementById('stage1Duration').innerText = '24시간 지속 (총 ' + (rate * 24).toLocaleString() + ' mL/day)';
+      document.getElementById('stage1Endpoint').innerText = withUOP('경구 섭취 가능 시 즉시 감량·중단. 체중·폐울혈·전해질 추적');
+      document.getElementById('nextLabGuidance').innerText = '특이 증상 없는 안정 NPO면 익일 AM 전해질·BUN/Cr. 발열·심신부전·고령은 더 이른 재검.';
+    }
+
+    function generateClinicalOrders(tbw, correctedNa, correctedAG, fena, insensible) {
+      const ctx = { tbw, correctedNa, correctedAG, fena, insensible };
+      const urgentBox = document.getElementById('urgentAlertBox');
+      const urgentTitle = document.getElementById('urgentAlertTitle');
+      const urgentDesc = document.getElementById('urgentAlertDesc');
+      const urgentIcon = document.getElementById('urgentAlertIcon');
+      const coBox = document.getElementById('coInfusionBox');
+      const coContent = document.getElementById('coInfusionContent');
+      const nextLab = document.getElementById('nextLabGuidance');
+      const interBox = document.getElementById('interactionBox');
+      const addBox = document.getElementById('additionalBox');
+
+      urgentBox.className = 'hidden';
+      coBox.className = 'hidden';
+      coContent.innerHTML = '';
+      interBox.className = 'hidden';
+      interBox.innerHTML = '';
+      addBox.className = 'hidden space-y-2.5';
+      addBox.innerHTML = '';
+      document.getElementById('stage1Card').className = S1_CLASS;
+      document.getElementById('stage1Title').innerHTML = '<span id="stage1Num" class="w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center text-[10px] mr-1.5">1</span>긴급/결핍 보정 단계 (Stage 1: Resuscitation / Urgent Deficit)';
+      document.getElementById('stage2Card').classList.remove('hidden');
+
+      const disorders = detectDisorders();
+      renderAcidBaseCard(ctx);
+
+      if (disorders.length === 0) {
+        renderMaintenance(insensible);
+        return;
+      }
+
+      const mods = disorders.map(d => MODULES[d.key](ctx));
+      const primary = mods[0];
+
+      if (primary.urgent) {
+        urgentBox.className = 'p-3.5 rounded-xl border bg-' + primary.color + '-50 border-' + primary.color + '-300 text-' + primary.color + '-900 flex items-start space-x-3';
+        urgentIcon.className = 'fa-solid ' + primary.urgent.icon + ' text-' + primary.color + '-600 text-2xl mt-0.5';
+        urgentTitle.innerText = primary.urgent.title + (mods.length > 1 ? '  + 동반 장애 ' + (mods.length - 1) + '개' : '');
+        urgentDesc.innerText = primary.urgent.desc;
+      }
+
+      fillStage(primary);
+      document.getElementById('stage1Title').innerHTML = '<span id="stage1Num" class="w-5 h-5 rounded-full bg-rose-600 text-white flex items-center justify-center text-[10px] mr-1.5">1</span>' + primary.label + ' — 초기/긴급 처치';
+
+      if (primary.co) {
+        coBox.className = COBOX_CLASS;
+        coContent.innerHTML = primary.co;
+      }
+
+      if (mods.length > 1) {
+        addBox.className = 'space-y-2.5';
+        addBox.innerHTML = '<div class="text-xs font-bold text-indigo-700 mt-1"><i class="fa-solid fa-layer-group mr-1"></i>동반 전해질·산염기 장애 병행 교정 (우선순위 순)</div>' +
+          mods.slice(1).map(renderAdditionalBlock).join('');
+      }
+
+      const warns = buildInteractionWarnings(disorders);
+      if (warns.length) {
+        interBox.className = 'block';
+        interBox.innerHTML = warns.map(t => '<div class="warn-item"><i class="fa-solid fa-triangle-exclamation mt-0.5"></i><span>' + t + '</span></div>').join('');
+      }
+
+      nextLab.innerText = mods.map(m => m.nextLab).join(' / ');
+    }
+
+
+    // ===== v6: 산-염기 전용 분석·교정 카드 =====
+    function analyzeAcidBase(ctx) {
+      const L = state.labs;
+      const ag = L.na - L.cl - L.hco3;
+      const agc = ag + 2.5 * (4.0 - L.alb);
+      const bw = state.bw;
+      const r = { show:false, diag:'', stats:[], secs:[], therapy:'', cautions:[], monitor:'' };
+
+      const isMetAcid = (L.hco3 < 22 && L.ph < 7.38) || (L.hco3 < 18);
+      const isMetAlk = (L.hco3 > 26 && L.ph > 7.44);
+      const isRespAcid = (L.paco2 > 45 && L.ph < 7.38 && !isMetAcid);
+      const isRespAlk = (L.paco2 < 35 && L.ph > 7.44 && !isMetAlk);
+
+      r.stats = [
+        { l:'Anion Gap', v: ag.toFixed(1) },
+        { l:'Alb보정 AG', v: agc.toFixed(1) }
+      ];
+
+      if (isMetAcid) {
+        r.show = true;
+        const highAG = agc > 12;
+        const deltaRatio = (24 - L.hco3) > 0 ? ((agc - 12) / (24 - L.hco3)) : 0;
+        r.stats.push({ l:'Delta ratio', v: highAG ? deltaRatio.toFixed(1) : '-' });
+
+        const expCO2 = 1.5 * L.hco3 + 8;
+        let comp = '호흡성 보상 적정 (예상 PaCO2 ' + expCO2.toFixed(0) + '±2)';
+        if (L.paco2 > expCO2 + 2) comp = '호흡성 산증 동반 (예상 ' + expCO2.toFixed(0) + ' < 실제 ' + L.paco2 + ') — 환기 평가 필요';
+        if (L.paco2 < expCO2 - 2) comp = '호흡성 알칼리증 동반 (예상 ' + expCO2.toFixed(0) + ' > 실제 ' + L.paco2 + ')';
+
+        r.diag = highAG ? 'High-AG 대사성 산증' : '정상AG(고Cl성) 대사성 산증';
+
+        let causes;
+        if (highAG) {
+          causes = '원인 분기: 젖산산증(쇼크·패혈증·저관류), 케톤산증(DKA·알콜성·기아), 신부전(Cr ' + L.cr + '), 독성알콜·살리실레이트 → lactate, ketone, Cr, 삼투압차 확인. ' +
+            (state.sbp < 90 || state.hr > 100 ? '현재 vital 상 젖산산증(저관류) 의심 — 수액·항생제·소스컨트롤·승압제 등 원인 치료가 곧 산증 치료. ' : '') +
+            'DKA이면 DKA 모듈 프로토콜 우선.';
+        } else {
+          causes = '원인 분기: 설사(하부 GI 손실), 요세관산증(RTA), 0.9% NS 과다투여, 요로우회술 → 설사력·수액력·약제력 확인. 고Cl성이면 NS 감량·중단.';
+        }
+        if (highAG && deltaRatio > 0 && deltaRatio < 0.8) causes += ' (Delta ratio ' + deltaRatio.toFixed(1) + ' < 0.8 → NAGMA 동반 가능)';
+        if (highAG && deltaRatio > 2) causes += ' (Delta ratio ' + deltaRatio.toFixed(1) + ' > 2 → 대사성 알칼리증 동반 가능)';
+        r.secs.push({ t:'① 원인 분기', b: causes });
+        r.secs.push({ t:'② 보상 평가', b: comp });
+
+        const bd = 24 - L.hco3;
+        const needLabel = Math.round(bd * 0.2 * bw);
+        const targetHco3 = 12;
+        const needTarget = L.hco3 < targetHco3 ? Math.round(0.4 * bw * (targetHco3 - L.hco3)) : 0;
+        const hyperK = L.k >= 5.5;
+        const nagama = !highAG;
+        const aki = L.cr >= 1.5;
+        const indicated = (L.ph < 6.90);  // v7.1: 원내 기준 — pH<6.9 중증 산증 또는 CPR 시에만 비본 제한적 투여
+
+        if (indicated) {
+          const half = Math.max(20, Math.round(needLabel / 2));
+          const amps = Math.ceil(half / 20);
+          r.therapy = '<span class="ab-dose">비본주(탄산수소나트륨 8.4%) 20mL(=20mEq/앰플) × ' + amps + '앰플 (총 ' + (amps * 20) + 'mEq)</span><br>' +
+            '<strong>pH ' + L.ph + ' < 6.9 중증 산증 — 제한적 투여 적응증 해당.</strong> ' +
+            '계산 근거(허가사항): 필요량 = 부족염기량 ' + bd + ' × 0.2 × ' + bw + 'kg = ' + needLabel + 'mEq → <strong>절반 ' + Math.round(needLabel/2) + 'mEq을 초회 투여</strong>.<br>' +
+            '투여법: 단독 라인으로 정맥 투여. 가는 정맥이면 5% DW에 희석해 천천히 점적(혈관외 유출 시 조직 괴사 주의). CPR 상황이면 slow IV push. 목표는 정상화가 아니라 pH ≥ 7.0-7.2.';
+        } else {
+          r.therapy = '<strong>비본(NaHCO3) 투여 안 함</strong> — 국내 통용 기준상 pH < 6.9의 심각한 대사성 산증 또는 CPR 상황에서만 제한적으로 투여. 현재 pH ' + L.ph + '로 해당 없음. 원인 치료 우선 — 젖산산증은 관류 회복·항생제·소스컨트롤, 설사/RTA는 원인 교정 ± 경구 중탄산, NS 과다는 감량.' +
+            (hyperK ? ' 단, 고K혈증 보조 목적은 예외적으로 고려 가능(산-염기가 아닌 고K 모듈 근거).' : '') +
+            ' 독성알콜 중독·RTA 등 예외 상황은 상급자 상의.';
+        }
+        r.secs.push({ t:'③ NaHCO3 보충 평가', b: r.therapy });
+
+        r.cautions = [
+          'HCO3 투여 시 K 세포내 이동 → 저K 악화 (동반 저K는 선보충)',
+          'Ionized Ca 감소 → 테타니·QT 연장 주의',
+          'CO2 발생 → 환기 부족(호흡성 산증 동반) 환자는 CO2 저류 위험',
+          'Na·수분 부하 → 심부전/CKD 주의, 과투여 시 rebound 알칼리증'
+        ];
+        r.monitor = '비본 투여 시 ABGA 30분-1시간 후 즉시 재평가(급변 위험), K·ionized Ca 추적. 반응 없는 산증·신부전·독성알콜은 신장내과(HD) 상담.';
+      }
+      else if (isMetAlk) {
+        r.show = true;
+        const clLow = L.cl < 95;
+        const hypoVol = state.volStatus === 'hypo';
+        const clResponsive = clLow || hypoVol;
+        const expCO2 = L.hco3 + 15;
+        r.diag = clResponsive ? '대사성 알칼리증 (Cl 반응성 추정)' : '대사성 알칼리증 (Cl 비반응성 검토)';
+        r.secs.push({ t:'① 원인 분기', b: clResponsive
+          ? '구토·NG suction·이뇨제 후 저Cl/저볼륨 추정 (Cl ' + L.cl + '). 위액 손실량 기록.'
+          : 'Cl 정상(' + L.cl + ')·정상/고혈량 — 고알도스테론증, 지속 이뇨제, 저K/저Mg, 외인성 알칼리 검토.' });
+        r.secs.push({ t:'② 보상 평가', b: '예상 PaCO2 ≈ HCO3 + 15 = ' + expCO2.toFixed(0) + ' (실제 ' + L.paco2 + ')' });
+        r.therapy = clResponsive
+          ? '<span class="ab-dose">0.9% NS 500-1,000mL + KCl 보충 병행</span><br>' + kclText(20) + ' 속도 75-125 cc/hr, 4-6시간 후 전해질·ABGA 재평가. 구토/NG 손실 지속 시 손실량만큼 추가.'
+          : 'NS 반응 제한적 예상 → 원인 치료 우선(이뇨제 조정, K/Mg 보충, 알도스테론 길항제 검토). 부종 동반 시 acetazolamide(다이아목스)는 이뇨로 체액량 추가 감소 주의 — 상급자 상의.';
+        r.secs.push({ t:'③ 교정 처방', b: r.therapy });
+        r.cautions = ['저K 동반 흔함 — KCl 미보충 시 알칼리증 교정 불응', '급격한 pH 정상화 불필요, 원인 교정이 우선'];
+        r.monitor = '전해질(Mg 포함)·ABGA 4-6시간 후 재검. I/O·위액 손실량 기록.';
+      }
+      else if (isRespAcid) {
+        r.show = true;
+        r.diag = '호흡성 산증';
+        r.secs.push({ t:'① 평가', b: 'PaCO2 ' + L.paco2 + ' 상승. 수액·완충제로 교정되는 장애가 아님 — 기도·환기·진정제·COPD 악화 등 원인 평가. 급성이면 HCO3 보상 미미(1당 +0.1), 만성이면 HCO3 상승(1당 +0.35).' });
+        r.therapy = '수액 처방 변경 불필요. 환기 지원(고유량 산소·NIV·intubation 평가) 등 원인 치료 — 필요 시 중환자의학과/호흡기내과 상담.';
+        r.secs.push({ t:'② 처치', b: r.therapy });
+        r.monitor = 'ABGA 1-2시간 내 추적, 의식·환기상태 감시.';
+      }
+      else if (isRespAlk) {
+        r.show = true;
+        r.diag = '호흡성 알칼리증';
+        r.secs.push({ t:'① 평가', b: 'PaCO2 ' + L.paco2 + ' 감소. 과환기 원인(통증·불안·발열·패혈증 초기·PE) 평가. 수액으로 교정 불가.' });
+        r.therapy = '원인 치료. 패혈증 초기·폐색전 가능성 있으면 그에 맞는 평가 진행.';
+        r.secs.push({ t:'② 처치', b: r.therapy });
+        r.monitor = '증상 추적, 필요 시 ABGA 재검.';
+      }
+
+      return r;
+    }
+
+    function renderAcidBaseCard(ctx) {
+      const box = document.getElementById('acidBaseBox');
+      const r = analyzeAcidBase(ctx);
+      if (!r.show) { box.className = 'hidden'; box.innerHTML = ''; return; }
+      let h = '<div class="ab-card">' +
+        '<div class="ab-head"><i class="fa-solid fa-flask-vial" style="color:#059669;font-size:18px"></i>' +
+        '<span class="ab-title">산-염기 장애 분석·교정 (Acid-Base)</span>' +
+        '<span class="ab-diag">' + r.diag + '</span></div>' +
+        '<div class="ab-grid">' +
+        '<div class="ab-stat"><span class="lbl">pH</span><span class="val">' + state.labs.ph + '</span></div>' +
+        '<div class="ab-stat"><span class="lbl">PaCO2</span><span class="val">' + state.labs.paco2 + '</span></div>' +
+        '<div class="ab-stat"><span class="lbl">HCO3</span><span class="val">' + state.labs.hco3 + '</span></div>' +
+        r.stats.map(s => '<div class="ab-stat"><span class="lbl">' + s.l + '</span><span class="val">' + s.v + '</span></div>').join('') +
+        '</div>' +
+        r.secs.map(s => '<div class="ab-sec"><span class="sec-t">' + s.t + '</span>' + s.b + '</div>').join('');
+      if (r.cautions.length)
+        h += '<div class="ab-caution"><strong>⚠ 주의:</strong> ' + r.cautions.join(' / ') + '</div>';
+      h += '<div class="ab-sec"><span class="sec-t">모니터링</span>' + r.monitor + '</div></div>';
+      box.className = 'block mt-2.5';
+      box.innerHTML = h;
+    }
+
+    function copyOrderToClipboard() {
+      const pAge = document.getElementById('patientAge').value;
+      const pBW = document.getElementById('patientBW').value;
+      const pSex = state.gender === 'male' ? '남' : '여';
+      const format = document.getElementById('emrFormat') ? document.getElementById('emrFormat').value : 'ward';
+      const uop = getUOPStatus();
+      const lines = [];
+      lines.push(format === 'er' ? '[ER 수액/전해질 오더]' : format === 'icu' ? '[ICU 수액/전해질 오더]' : '[병동 수액 오더]');
+      lines.push('환자: ' + pAge + '세/' + pSex + '/' + pBW + 'kg | ' + uop.text);
+      lines.push('Lab: Na ' + state.labs.na + ', K ' + state.labs.k + ', Cl ' + state.labs.cl + ', Glu ' + state.labs.glu + ', BUN/Cr ' + state.labs.bun + '/' + state.labs.cr + ', pH ' + state.labs.ph + ', HCO3 ' + state.labs.hco3);
+      lines.push('----------------------------------------');
+
+      const s1t = document.getElementById('stage1Title').innerText.replace(/\s+/g, ' ').trim();
+      lines.push('[' + s1t + ']');
+      lines.push('수액/약제: ' + document.getElementById('stage1Fluid').innerText);
+      const s1a = document.getElementById('stage1Additive').innerText.trim();
+      if (s1a) lines.push('첨가/혼합: ' + s1a);
+      lines.push('속도: ' + document.getElementById('stage1RateDetail').innerText);
+      lines.push('기간/총량: ' + document.getElementById('stage1Duration').innerText);
+      lines.push('Endpoint: ' + document.getElementById('stage1Endpoint').innerText);
+
+      if (!document.getElementById('stage2Card').classList.contains('hidden')) {
+        lines.push('');
+        lines.push('[Stage 2: 유지/잔여 수액]');
+        lines.push('수액: ' + document.getElementById('stage2Fluid').innerText);
+        const s2c = document.getElementById('stage2Composition').innerText.trim();
+        if (s2c) lines.push('조성/주의: ' + s2c);
+        lines.push('속도: ' + document.getElementById('stage2RateDetail').innerText);
+        lines.push('총량: ' + document.getElementById('stage2TotalDaily').innerText);
+        lines.push('Endpoint: ' + document.getElementById('stage2Endpoint').innerText);
+      }
+
+      const coBox = document.getElementById('coInfusionBox');
+      if (!coBox.classList.contains('hidden') && document.getElementById('coInfusionContent').innerText.trim()) {
+        lines.push('');
+        lines.push('[동시 병행 중재]');
+        lines.push(document.getElementById('coInfusionContent').innerText.trim());
+      }
+
+      const addBox = document.getElementById('additionalBox');
+      if (!addBox.classList.contains('hidden') && addBox.innerText.trim()) {
+        lines.push('');
+        lines.push(addBox.innerText.trim());
+      }
+
+      const interBox = document.getElementById('interactionBox');
+      if (!interBox.classList.contains('hidden') && interBox.innerText.trim()) {
+        lines.push('');
+        lines.push('[복합 장애 주의사항]');
+        lines.push(interBox.innerText.trim());
+      }
+
+      const abBox = document.getElementById('acidBaseBox');
+      if (!abBox.classList.contains('hidden') && abBox.innerText.trim()) {
+        lines.push('');
+        lines.push('[산-염기 장애 교정]');
+        lines.push(abBox.innerText.trim());
+      }
+
+      lines.push('');
+      lines.push('[추적 오더] ' + document.getElementById('nextLabGuidance').innerText);
+      lines.push(format === 'icu' ? 'Monitor: 지속 ECG/SpO2, strict I/O 가능 시, serial vital.' : format === 'er' ? 'Monitor: 처치 후 초기 재평가, vital/ECG/serial lab.' : 'Monitor: vital, 폐울혈, 체중, I/O 가능 시 기록.');
+      lines.push('----------------------------------------');
+      lines.push('* 국내 유통 제제 기준. KCl 원액 IV push 금지(40mEq/L 이하 희석, 20mEq/hr 초과 금지). 고농도 NaCl·NaHCO3 조제는 원내 약제부 지침 우선.');
+
+      const text = lines.join('\n');
+      const tempInput = document.createElement('textarea');
+      tempInput.value = text;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+      showToast('선택한 EMR 서식으로 오더 복사 완료.');
+    }
+
+    (function initTheme() {
+      let saved = null;
+      try { saved = localStorage.getItem('ivcare-theme'); } catch(e) {}
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (saved === 'dark' || (!saved && prefersDark)) {
+        document.body.classList.add('dark');
+        const icon = document.getElementById('themeIcon');
+        if (icon) icon.className = 'fa-solid fa-sun';
+      }
+    })();
+    </script>
+</body>
+</html>
